@@ -1,0 +1,17 @@
+# V2.2 audit and scope
+
+Baseline: `2681e0022fdcc78551824d7b814802ce730eec59` (application `e138c57`), clean working tree and matching remote main. Isolated branch `codex/shiftmargin-v2-2`.
+
+| Severity            | Evidence                                                                                                                    | Decision                                                                                                              |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| HIGH                | Free `save()` replaces its key immediately; the warning appears after the first save rather than before replacement         | Confirm replacement before writing; offer keeping both through Plus Demo                                              |
+| HIGH                | Refresh discards unsaved plans and exact partial money text                                                                 | Preserve explicit saves; defer automatic drafts rather than silently store incomplete inputs; document the limitation |
+| MEDIUM              | Only one saved scenario; no history or cross-plan comparison                                                                | Separate bounded Plus library, naming, opening, deletion, two-plan comparison through the existing worker             |
+| MEDIUM              | No functional demonstration of a paid tier                                                                                  | $5.99/month price hypothesis; explicit demo unlock, no payment, reversible access flag                                |
+| Existing protection | Invalid/corrupt Free storage is rejected without replacing current input                                                    | Retain its schema and validate all new library objects; errors preserve raw data                                      |
+| Existing protection | Work/commute edits retain literal care and request review; limits are visible; relevant rejected combinations are explained | Preserve implementation and regression tests                                                                          |
+| Existing protection | Worker cancellation and input identity hide stale results; partial money drafts survive navigation and mode switching       | Reuse the unchanged worker for comparisons; never cache financial outputs in storage                                  |
+
+No critical defect found in the optimizer, coverage, money or time modules. Preserve them, their independent oracle tests and all 52 baseline tests. No new dependencies, payment provider, backend, account, email or cloud sync. FAQ statements are supplied by the task; no independent organizer validation or market validation is claimed.
+
+Storage design: existing Free key unchanged; versioned Plus library with at most five valid input snapshots and bounded text size; separate versioned demo flag. Library writes check the previously read raw value to avoid silently overwriting another tab's changes. Deleting or clearing data requires an explicit confirmation. Disabling Demo retains plans and closes protected features. Local client access is a functional monetization prototype, not subscription security.

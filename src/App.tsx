@@ -14,6 +14,9 @@ import ShiftOffersForm from "./components/ShiftOffersForm";
 import CostsForm from "./components/CostsForm";
 import ResultsPanel from "./components/ResultsPanel";
 import { changedCareNeeds } from "./ui/planAdapter";
+import PlanManager from "./components/PlanManager";
+import type { PlanAction } from "./components/PlanManager";
+import { demoIsActive, DEMO_KEY } from "./storage/planLibrary";
 import WeekSettings from "./components/WeekSettings";
 const steps = ["Your shifts", "Childcare", "Your costs", "Your result"];
 function issueStep(i: Issue) {
@@ -60,6 +63,27 @@ export default function App() {
   const [note, setNote] = useState(""),
     [navigationError, setNavigationError] = useState("");
   const [careReview, setCareReview] = useState<string[]>([]);
+  const [planAction, setPlanAction] = useState<PlanAction | null>(null);
+  const [plusActive, setPlusActive] = useState(() => {
+    try {
+      return demoIsActive(localStorage);
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    function refreshDemo(e: StorageEvent) {
+      if (e.key === DEMO_KEY || e.key === null) {
+        try {
+          setPlusActive(demoIsActive(localStorage));
+        } catch {
+          setPlusActive(false);
+        }
+      }
+    }
+    window.addEventListener("storage", refreshDemo);
+    return () => window.removeEventListener("storage", refreshDemo);
+  }, []);
   const main = useRef<HTMLElement>(null);
   const issues = validate(plan),
     valid = issues.length === 0;
@@ -157,7 +181,12 @@ export default function App() {
   }
   function save() {
     try {
-      localStorage.setItem(STORAGE_KEY, serializeWeek(plan, sample));
+      const text = serializeWeek(plan, sample);
+      if (localStorage.getItem(STORAGE_KEY) !== null) {
+        setPlanAction("replace-free");
+        return;
+      }
+      localStorage.setItem(STORAGE_KEY, text);
       setNote(
         "Week saved on this browser. Saving again replaces your previous saved week.",
       );
@@ -166,6 +195,15 @@ export default function App() {
         "Could not save. Check your inputs and whether this browser allows local storage.",
       );
     }
+  }
+  function replaceFree(expected: string | null) {
+    const text = serializeWeek(plan, sample);
+    if (localStorage.getItem(STORAGE_KEY) !== expected)
+      throw new Error(
+        "The Free saved week changed in another tab. Close this dialog and try saving again.",
+      );
+    localStorage.setItem(STORAGE_KEY, text);
+    setNote("Free saved week replaced on this browser.");
   }
   function restore() {
     try {
@@ -296,6 +334,17 @@ export default function App() {
           <button className="text-button" onClick={restore}>
             Load a saved week
           </button>
+          <button
+            className="text-button"
+            onClick={() => setPlanAction("library")}
+          >
+            Plan library
+          </button>
+          {plusActive && (
+            <p className="demo-status">
+              Plus demo active · No payment processed
+            </p>
+          )}
           {hasPlan && (
             <button className="text-button" onClick={() => setStep(furthest)}>
               Continue my current plan
@@ -336,6 +385,11 @@ export default function App() {
               </span>
             )}
           </div>
+          {plusActive && (
+            <p className="demo-status">
+              Plus demo active · No payment processed
+            </p>
+          )}
           {sample && (
             <p className="sample-note">
               Fictional shifts, real calculation. Edit any input to see what
@@ -455,6 +509,22 @@ export default function App() {
             )}
           </div>
           {step === 4 && (
+            <div className="plan-entry-actions">
+              <button
+                className="text-button"
+                onClick={() => setPlanAction("save-extra")}
+              >
+                Save another plan
+              </button>
+              <button
+                className="text-button"
+                onClick={() => setPlanAction("library")}
+              >
+                Plan library
+              </button>
+            </div>
+          )}
+          {step === 4 && (
             <button className="next-week-button" onClick={reuse}>
               Plan next week <span aria-hidden="true">→</span>
               <small>Copy care settings and add new shifts</small>
@@ -490,8 +560,35 @@ export default function App() {
           </details>
         </div>
       </main>
+      {planAction && (
+        <PlanManager
+          action={planAction}
+          plan={plan}
+          illustrative={sample}
+          hasPlan={hasPlan}
+          onClose={() => setPlanAction(null)}
+          onDemoChange={setPlusActive}
+          onReplaceFree={replaceFree}
+          onRestore={(saved) => {
+            replace(
+              saved.plan,
+              "Library plan opened. Recheck care availability before accepting shifts.",
+            );
+            setSample(saved.illustrative);
+            setHasPlan(true);
+            setFurthest(4);
+            setStep(saved.plan.offers.length ? 4 : 1);
+          }}
+        />
+      )}
       <footer>
         <span>ShiftMargin · Earn more. Keep more.</span>
+        <button
+          className="text-button"
+          onClick={() => setPlanAction("pricing")}
+        >
+          Free & Plus
+        </button>
         <span>Estimates, not guarantees. Confirm care directly.</span>
       </footer>
     </>

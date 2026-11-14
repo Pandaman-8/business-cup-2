@@ -43,7 +43,13 @@ Dollar input is converted once to integer cents. Shift earnings and each full si
 
 ## Return next week
 
-Choose **Save this week** to store one validated plan locally. **Load saved week** restores it; **Remove saved week** removes only ShiftMargin's saved data. Nothing is saved automatically; refreshing loses an unsaved plan. There is no cloud sync. **Plan next week** advances care windows seven days, preserves household assumptions, clears shift offers and reminds you to reconfirm availability. A DST transition week is rejected.
+Choose **Save this week** to store one validated Free plan locally. Replacing it now requires confirmation. **Load a saved week** restores it; **Remove saved week** removes only the Free slot. Nothing is saved automatically; refreshing loses an unsaved plan. There is no cloud sync. **Plan next week** advances care windows seven days, preserves household assumptions, clears shift offers and reminds you to reconfirm availability. A DST transition week is rejected.
+
+## Free and Plus Demo
+
+**Free ($0)** keeps the full optimizer, feasible shift comparison, breakdown, what-if changes, one saved week and next-week reuse. **ShiftMargin Plus ($5.99/month proposed)** adds up to five named plans, a local library with open/rename/delete, and comparison of two snapshots recalculated by the same worker.
+
+Choose **Save another plan**, **Plan library**, or **Free & Plus**, then **Try Plus Demo — No payment required**. This unlocks working features and displays **Plus demo active · No payment processed**. No card, subscription, account or payment is created. Turning Demo off retains the library and relocks its features; clearing the library requires confirmation and preserves the Free slot. Plans stay in this browser. This is a functional monetization prototype; price, willingness to pay and retention are unvalidated hypotheses.
 
 ## Boundaries
 
@@ -55,6 +61,10 @@ Static output works on GitHub Pages, Vercel or Netlify. The relative asset base 
 
 ## Documentation
 
+- [V2.2 audit](docs/V2_2_AUDIT.md)
+- [Free/Plus model and monetization limits](docs/MONETIZATION_V2_2.md)
+- [V2.2 release QA](docs/QA_V2_2.md)
+- [V2.2 factual pitch handoff and demo script](docs/PITCH_EVIDENCE_V2_2.md)
 - [V2.1 polish decisions](docs/POLISH_V2_1.md)
 - [V2.1 release QA](docs/QA_V2_1.md)
 - [V2 UX architecture](docs/UX_REDESIGN_V2.md)
