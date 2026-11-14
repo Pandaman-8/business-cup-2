@@ -25,7 +25,7 @@ In-app Chromium browser, local production preview:
 
 - Native labels, details, buttons, focus outlines and live result announcements retained; new choices expose `aria-pressed`, and care review uses a status announcement.
 - Automated keyboard entry/navigation test passes. Physical keyboard and screen-reader audit remain unverified; the embedded browser's Tab simulation was unreliable in V2. No WCAG certification claimed.
-- Calculated text contrast: accent on paper 5.78:1, secondary text 5.86:1, primary financial figure 10.95:1, secondary result text 8.70:1. Input/button borders darkened from 2.79:1 to above 3:1 against white. Reduced-motion rule remains in place.
+- Calculated text contrast: accent on paper 5.78:1, secondary text 5.86:1, primary financial figure 10.95:1, secondary result text 8.70:1. Input/button borders darkened from 2.79:1 to 3.56:1 against white. Reduced-motion rule remains in place.
 - Draft autosave deliberately deferred: reload still loses an unsaved plan. Explicit saved-week behavior remains unchanged and privacy copy now names this limitation. Care-review flags are session-only; loading or moving a week already carries a reconfirmation message.
 - No user study, conversion uplift, guaranteed savings, or external care confirmation is claimed.
 
@@ -34,10 +34,18 @@ In-app Chromium browser, local production preview:
 - Before desktop: [V2 baseline](screenshots/v2-1-before-desktop.jpg).
 - After desktop: [V2.1 result](screenshots/v2-1-desktop.jpg).
 - Before/after mobile: [V2](screenshots/v2-mobile.jpg), [V2.1](screenshots/v2-1-mobile.jpg).
+- Custom production flow: [$85.55 on mobile](screenshots/v2-1-custom-mobile.jpg).
 - Before/after entry: [V2](screenshots/v2-entry.jpg), [V2.1](screenshots/v2-1-entry.jpg).
 
 Observed workflow change: common one/two-shift selection no longer requires opening a settings disclosure or editing a number. Full-shift care still takes an explicit check and reuses entered work times. Optional hour limits, extended care ranges and financial assumptions remain secondary. Result changes use the existing cancellation and stale-result protection.
 
 ## Release
 
-Release commit, CI/deployment links and live verification are recorded here after deployment succeeds.
+Application release: `e138c57647d5921229df8246782938188ca3d453`, fast-forwarded to main after [branch CI](https://github.com/Pandaman-8/business-cup-2/actions/runs/43590727204) passed.
+
+- [Main CI](https://github.com/Pandaman-8/business-cup-2/actions/runs/43590810478): success.
+- [GitHub Pages deployment](https://github.com/Pandaman-8/business-cup-2/actions/runs/43590810480): success.
+- [Public production](https://pandaman-8.github.io/business-cup-2/): root HTML serves `index-D5QVqDP0.js` and `index-DkDp6nds.css`; real browser sample verifies $98.40, two-shift $121.60 and missing-partner $23.20. A full custom production flow also returns $85.55; console error log is empty.
+- Entry, desktop result and mobile result screenshots were refreshed from the deployed site. Tablet/wide/cost screenshots are from the identical local production build.
+
+A following documentation-only commit records this evidence; no application code changes after the tested release.
