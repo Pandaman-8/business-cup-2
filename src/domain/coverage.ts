@@ -11,13 +11,19 @@ export function minimumCare(required: boolean[], available: boolean[], rate: num
   const choice = new Int32Array(n).fill(-1);
   const runEnd = new Int32Array(n + 1);
   const prefix = new Int32Array(n + 1);
+  const nextRequired = new Int32Array(n + 1).fill(n);
   for (let t = 0; t < n; t++) prefix[t + 1] = prefix[t] + Number(required[t]);
   for (let t = n - 1; t >= 0; t--) runEnd[t] = available[t] ? (available[t + 1] ? runEnd[t + 1] : t + 1) : t;
+  for (let t = n - 1; t >= 0; t--) nextRequired[t] = required[t] ? t : nextRequired[t + 1];
   const costs = Array.from({ length: n + 1 }, (_, len) => payForMinutes(rate, len * 15));
   dp[n] = dp[n + 1] = 0; count[n] = count[n + 1] = 0;
   for (let t = n - 1; t >= 0; t--) {
     if (!required[t]) { dp[t] = dp[t + 1]; count[t] = count[t + 1]; }
-    for (let e = t + Math.max(1, minimumSlots); e <= runEnd[t]; e++) {
+    if (nextRequired[t] === n) continue;
+    for (let e = Math.max(t + Math.max(1, minimumSlots), nextRequired[t] + 1); e <= runEnd[t]; e++) {
+      // All remaining costs are nonnegative and visit cost is monotone.
+      // Longer visits cannot improve an already cheaper complete solution.
+      if (costs[e - t] > dp[t]) break;
       if (prefix[e] === prefix[t] || (e < n && required[e])) continue;
       const next = e < n ? e + 1 : n;
       const candidate = costs[e - t] + dp[next];
