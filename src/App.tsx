@@ -1,336 +1,447 @@
 import { useEffect, useRef, useState } from "react";
 import { demoWeek, blankWeek } from "./data/demoWeek";
-import type { OptimizeResult, PlanInput } from "./domain/types";
+import type { OptimizeResult, PlanInput, Issue } from "./domain/types";
 import { validate } from "./domain/validation";
-import FamilyCareForm from "./components/FamilyCareForm";
-import ShiftOffersForm from "./components/ShiftOffersForm";
-import ResultsPanel from "./components/ResultsPanel";
+import { shiftDate } from "./domain/time";
 import {
   deserializeWeek,
   nextWeekSettings,
   serializeWeek,
   STORAGE_KEY,
 } from "./domain/persistence";
+import FamilyCareForm from "./components/FamilyCareForm";
+import ShiftOffersForm from "./components/ShiftOffersForm";
+import CostsForm from "./components/CostsForm";
+import ResultsPanel from "./components/ResultsPanel";
+import WeekSettings from "./components/WeekSettings";
+const steps = ["Your shifts", "Childcare", "Your costs", "Your result"];
+function issueStep(i: Issue) {
+  if (
+    i.path === "withholdingPercent" ||
+    i.path.endsWith("travelCostCents") ||
+    i.path === "paidCare.hourlyCostCents"
+  )
+    return 3;
+  if (
+    i.path.startsWith("partner") ||
+    i.path.startsWith("unpaid") ||
+    i.path.startsWith("existing") ||
+    i.path.startsWith("paidCare") ||
+    i.path === "household"
+  )
+    return 2;
+  return 1;
+}
+function newWeek() {
+  const p = blankWeek();
+  const now = new Date();
+  const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  return {
+    ...p,
+    weekStart: shiftDate(date, (8 - now.getDay()) % 7),
+    maxAdditionalShifts: 1,
+  };
+}
 export default function App() {
-  const [plan, setPlan] = useState<PlanInput>(demoWeek);
-  const [open, setOpen] = useState(false),
-    [sample, setSample] = useState(false);
-  const [started, setStarted] = useState(false),
-    [revision, setRevision] = useState(0),
-    [formKey, setFormKey] = useState(0);
+  const [plan, setPlan] = useState<PlanInput>(demoWeek),
+    [step, setStep] = useState(0),
+    [furthest, setFurthest] = useState(1),
+    [advanced, setAdvanced] = useState(false),
+    [sample, setSample] = useState(false),
+    [hasPlan, setHasPlan] = useState(false),
+    [formKey, setFormKey] = useState(0),
+    [revision, setRevision] = useState(0);
   const [calculation, setCalculation] = useState<{
     input: PlanInput;
     result?: OptimizeResult;
     error?: string;
   } | null>(null);
-  const workspace = useRef<HTMLDivElement>(null);
-  const [storageNote, setStorageNote] = useState("");
-  const issues = validate(plan);
-  const valid = issues.length === 0;
+  const [note, setNote] = useState(""),
+    [navigationError, setNavigationError] = useState("");
+  const main = useRef<HTMLElement>(null);
+  const issues = validate(plan),
+    valid = issues.length === 0;
   const result =
     calculation?.input === plan ? (calculation.result ?? null) : null;
-  const error =
-    !valid && started
-      ? "Please correct the highlighted inputs to calculate your week."
-      : calculation?.input === plan
-        ? (calculation.error ?? "")
-        : "";
-  const pending = started && valid && !result && !error;
+  const error = !valid
+    ? "Some inputs need attention before we can compare your options."
+    : calculation?.input === plan
+      ? (calculation.error ?? "")
+      : "";
+  const pending = step === 4 && valid && !result && !error;
   useEffect(() => {
-    if (!started || !valid) return;
+    if (step !== 4 || !valid) return;
     const worker = new Worker(
       new URL("./domain/optimizer.worker.ts", import.meta.url),
       { type: "module" },
     );
     worker.onmessage = (
-      event: MessageEvent<{ result?: OptimizeResult; error?: string }>,
-    ) => setCalculation({ input: plan, ...event.data });
+      e: MessageEvent<{ result?: OptimizeResult; error?: string }>,
+    ) => setCalculation({ input: plan, ...e.data });
     worker.onerror = () =>
       setCalculation({
         input: plan,
         error:
-          "The calculation could not finish. Please recalculate or reload the page.",
+          "The calculation could not finish. Try again or reload the page.",
       });
-    const timer = setTimeout(() => worker.postMessage(plan), 160);
+    const timer = setTimeout(() => worker.postMessage(plan), 120);
     return () => {
       clearTimeout(timer);
       worker.terminate();
     };
-  }, [plan, started, valid, revision]);
-  function load(isSample: boolean) {
-    setStorageNote("");
-    setPlan(isSample ? demoWeek() : blankWeek());
-    setOpen(true);
-    setSample(isSample);
-    setStarted(isSample);
+  }, [plan, step, valid, revision]);
+  useEffect(() => {
+    if (step === 0) return;
+    const heading = main.current?.querySelector<HTMLElement>(
+      '[data-active="true"] h1',
+    );
+    heading?.setAttribute("tabindex", "-1");
+    heading?.focus();
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [step, formKey]);
+  function navigate(next: number) {
+    setNavigationError("");
+    if (next > step) {
+      const check = issues.filter((i) => next === 4 || issueStep(i) === step);
+      if (step === 1 && !plan.offers.length) {
+        setNavigationError("Add at least one shift to compare.");
+        return;
+      }
+      if (check.length) {
+        const target = issueStep(check[0]);
+        setStep(target);
+        setNavigationError(
+          "Please check the highlighted fields before continuing.",
+        );
+        requestAnimationFrame(() =>
+          main.current
+            ?.querySelector<HTMLElement>(
+              '[data-active="true"] [aria-invalid="true"]',
+            )
+            ?.focus(),
+        );
+        return;
+      }
+    }
+    setFurthest((n) => Math.max(n, next));
+    setStep(next);
+  }
+  function replace(p: PlanInput, message = "") {
+    setPlan(p);
     setCalculation(null);
     setFormKey((k) => k + 1);
-    requestAnimationFrame(() =>
-      workspace.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
-    );
+    setNote(message);
+    setNavigationError("");
   }
-  function saveWeek() {
+  function start(isSample: boolean) {
+    replace(isSample ? demoWeek() : newWeek());
+    setSample(isSample);
+    setHasPlan(true);
+    setAdvanced(false);
+    setFurthest(isSample ? 4 : 1);
+    setStep(isSample ? 4 : 1);
+  }
+  function change(p: PlanInput) {
+    setPlan(p);
+    setNavigationError("");
+    setNote("");
+  }
+  function save() {
     try {
       localStorage.setItem(STORAGE_KEY, serializeWeek(plan, sample));
-      setStorageNote(
-        "Week saved on this browser only. Saving again replaces the previous saved week.",
+      setNote(
+        "Week saved on this browser. Saving again replaces your previous saved week.",
       );
     } catch {
-      setStorageNote(
+      setNote(
         "Could not save. Check your inputs and whether this browser allows local storage.",
       );
     }
   }
-  function restoreWeek() {
+  function restore() {
     try {
       const text = localStorage.getItem(STORAGE_KEY);
       if (!text) {
-        setStorageNote("No saved week in this browser yet.");
+        setNote("No saved week in this browser yet.");
         return;
       }
       const saved = deserializeWeek(text);
-      setPlan(saved.plan);
-      setSample(saved.illustrative);
-      setOpen(true);
-      setStarted(true);
-      setCalculation(null);
-      setFormKey((k) => k + 1);
-      setStorageNote(
+      replace(
+        saved.plan,
         "Saved week loaded. Recheck care availability before accepting shifts.",
       );
+      setSample(saved.illustrative);
+      setHasPlan(true);
+      setFurthest(4);
+      setStep(saved.plan.offers.length ? 4 : 1);
     } catch {
-      setStorageNote(
-        "Could not load this saved week. It may be damaged or use an older format. Your current inputs are unchanged.",
+      setNote(
+        "Could not load this saved week. Your current inputs are unchanged.",
       );
     }
   }
-  function reuseSettings() {
+  function reuse() {
     try {
-      setPlan(nextWeekSettings(plan));
-      setCalculation(null);
-      setStarted(false);
-      setFormKey((k) => k + 1);
-      setStorageNote(
-        "Family settings moved forward one week. Reconfirm every copied care window and add your new shift offers.",
+      replace(
+        nextWeekSettings(plan),
+        "Care hours copied to next week; shift offers cleared. Reconfirm every copied care window before accepting work.",
       );
+      setStep(1);
+      setFurthest(1);
     } catch {
-      setStorageNote(
-        "Could not reuse these settings. Fix any input errors first; the next week must also be within 2020–2100 and have no daylight saving clock change.",
+      setNote(
+        "Could not plan next week. Fix input errors first; the next week must have no daylight saving clock change.",
       );
     }
   }
   return (
     <>
       <a className="skip-link" href="#main">
-        Skip to planner
+        Skip to content
       </a>
       <header className="site-header">
-        <a className="brand" href="#" aria-label="ShiftMargin home">
-          <span className="brand-icon">
+        <button
+          className="brand"
+          onClick={() => {
+            setStep(0);
+            setNote("");
+          }}
+          aria-label="ShiftMargin home"
+        >
+          <span className="brand-symbol" aria-hidden="true">
             <i />
             <i />
             <i />
           </span>
-          Shift<span>Margin</span>
-          <span className="brand-dot">.</span>
-        </a>
-        <span className="header-tag">A little planning. More possibility.</span>
-        <span className="private-label">
-          <span aria-hidden="true">◇</span> No account needed
-        </span>
-      </header>
-      <main id="main">
-        <section className={`hero ${open ? "hero-small" : ""}`}>
-          <div className="hero-copy">
-            <span className="eyebrow hero-eyebrow">
-              <span className="tiny-dot" /> BUILT AROUND YOUR FAMILY
-            </span>
-            <h1>
-              Earn more.
-              <br /> <span>Keep more.</span>
-            </h1>
-            <p>
-              The biggest paycheck isn’t always the best shift. Find the extra
-              work that leaves you more after childcare and commuting.
-            </p>
-            <div className="hero-actions">
-              <button className="primary-button" onClick={() => load(true)}>
-                {open ? "Reset sample" : "Try a sample family"}
-                <span>↗</span>
-              </button>
-              <button className="secondary-button" onClick={() => load(false)}>
-                Start with my week <span>→</span>
-              </button>
-            </div>
-            <p className="hero-note">
-              Free to use. No sign-up. Your inputs stay in this browser.
-            </p>
-            {!open && (
-              <button className="text-button" onClick={restoreWeek}>
-                Load saved week
-              </button>
-            )}
-            {!open && storageNote && (
-              <p className="storage-message" role="status">
-                {storageNote}
-              </p>
-            )}
-          </div>
-          <div className="hero-art" aria-hidden="true">
-            <div className="art-top">
-              <span>A week that works for you</span>
-              <span>↗</span>
-            </div>
-            <div className="week-strips">
-              <span>M</span>
-              <span>T</span>
-              <span>W</span>
-              <span>T</span>
-              <span>F</span>
-              <span className="work-day">S</span>
-              <span className="chosen-day">
-                S <i>✓</i>
-              </span>
-            </div>
-            <div className="art-equation">
-              <span>Extra pay</span>
-              <b>−</b>
-              <span>Care & travel</span>
-              <b>=</b>
-            </div>
-            <div className="art-bottom">
-              More for
-              <br />
-              what matters.<span>✳</span>
-            </div>
-            <p>See the whole picture before saying yes.</p>
-          </div>
-        </section>
-        {!open && (
-          <section className="how-it-works" aria-label="How it works">
-            <article>
-              <span>01 / YOUR OPTIONS</span>
-              <h2>Start with your week.</h2>
-              <p>
-                Add your extra shift offers and the times care is available.
-              </p>
-            </article>
-            <article>
-              <span>02 / THE FULL PICTURE</span>
-              <h2>Look beyond the paycheck.</h2>
-              <p>Include childcare, travel and your estimated withholding.</p>
-            </article>
-            <article>
-              <span>03 / YOUR NEXT MOVE</span>
-              <h2>Choose with clarity.</h2>
-              <p>Compare feasible plans and see how each dollar adds up.</p>
-            </article>
-          </section>
+          ShiftMargin<span className="brand-period">.</span>
+        </button>
+        <span className="header-note">A clearer choice for your family.</span>
+        {step > 0 && (
+          <button
+            className="text-button"
+            onClick={() => setAdvanced(!advanced)}
+          >
+            {advanced ? "Quick Compare" : "Advanced Planning"}
+          </button>
         )}
-        {open && (
-          <div className="workspace" ref={workspace}>
-            <div className="workspace-heading">
-              <div>
-                <span className="eyebrow">YOUR WEEKLY PLANNER</span>
-                <h2>Let’s make your week add up.</h2>
-              </div>
-              <div className="sample-label">
-                {sample ? "Illustrative sample · editable" : "Your custom week"}
-              </div>
+      </header>
+      <main
+        id="main"
+        ref={main}
+        tabIndex={-1}
+        className={step === 0 ? "entry" : "workspace"}
+      >
+        <section className="entry-content" hidden={step !== 0}>
+          <span className="entry-intro">
+            A little clarity before you say yes.
+          </span>
+          <h1>
+            Find the shift that
+            <br />
+            <em>leaves you more.</em>
+          </h1>
+          <p className="entry-description">
+            Compare extra shifts after childcare and travel costs.
+          </p>
+          <div className="entry-actions">
+            <button className="primary-button" onClick={() => start(false)}>
+              Compare my shifts <span aria-hidden="true">→</span>
+            </button>
+            <button className="secondary-button" onClick={() => start(true)}>
+              Try an example
+            </button>
+          </div>
+          <p className="privacy-line">
+            No sign-up required <span>·</span> Private calculation{" "}
+            <span>·</span> Estimated results
+          </p>
+          <div className="entry-how">
+            <p>
+              <strong>1. Add your shifts</strong>
+              <span>The hours and pay you’re considering.</span>
+            </p>
+            <p>
+              <strong>2. Confirm care</strong>
+              <span>Who’s available while you work.</span>
+            </p>
+            <p>
+              <strong>3. See what stays</strong>
+              <span>The money left after added costs.</span>
+            </p>
+          </div>
+          <button className="text-button" onClick={restore}>
+            Load a saved week
+          </button>
+          {hasPlan && (
+            <button className="text-button" onClick={() => setStep(furthest)}>
+              Continue my current plan
+            </button>
+          )}
+          {note && (
+            <p role="status" className="notice">
+              {note}
+            </p>
+          )}
+        </section>
+        <div hidden={step === 0}>
+          <nav aria-label="Comparison steps" className="progress">
+            <ol>
+              {steps.map((title, i) => (
+                <li key={title}>
+                  <button
+                    aria-label={`${i + 1} ${title}`}
+                    aria-current={step === i + 1 ? "step" : undefined}
+                    disabled={i + 1 > furthest}
+                    onClick={() => navigate(i + 1)}
+                  >
+                    <span className="step-number">{i + 1}</span>
+                    <span>{title}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </nav>
+          <div className="workspace-meta">
+            <span>{advanced ? "Advanced Planning" : "Quick Compare"}</span>
+            {sample && (
+              <span>
+                Illustrative example{" "}
+                <button className="text-button" onClick={() => start(true)}>
+                  Reset
+                </button>
+              </span>
+            )}
+          </div>
+          {sample && (
+            <p className="sample-note">
+              Fictional shifts, real calculation. Edit any input to see what
+              changes.
+            </p>
+          )}
+          {note && (
+            <p className="notice" role="status">
+              {note}
+            </p>
+          )}
+          {navigationError && (
+            <p className="error-summary" role="alert">
+              {navigationError}
+            </p>
+          )}
+          <div key={formKey}>
+            <div hidden={step !== 1} data-active={step === 1}>
+              <WeekSettings
+                issues={issues}
+                plan={plan}
+                replace={replace}
+                advanced={advanced}
+              />
+              <ShiftOffersForm
+                plan={plan}
+                change={change}
+                issues={issues}
+                advanced={advanced}
+              />
             </div>
-            <div className="week-tools" aria-label="Local week tools">
-              <div>
-                <button onClick={saveWeek} disabled={!valid}>
+            <div hidden={step !== 2} data-active={step === 2}>
+              <FamilyCareForm
+                plan={plan}
+                change={change}
+                issues={issues}
+                advanced={advanced}
+              />
+            </div>
+            <div hidden={step !== 3} data-active={step === 3}>
+              <CostsForm plan={plan} change={change} issues={issues} />
+            </div>
+            <div hidden={step !== 4} data-active={step === 4}>
+              <ResultsPanel
+                result={result}
+                plan={plan}
+                pending={pending}
+                error={error}
+                onRetry={() => {
+                  setCalculation(null);
+                  setRevision((n) => n + 1);
+                }}
+                edit={(n) => {
+                  setStep(n);
+                  setNavigationError("");
+                }}
+                change={change}
+              />
+            </div>
+          </div>
+          <div className="step-actions">
+            {step < 4 ? (
+              <>
+                <button
+                  className="text-button"
+                  onClick={() => navigate(step - 1)}
+                >
+                  ← {step === 1 ? "Home" : "Back"}
+                </button>
+                <button
+                  className="primary-button"
+                  onClick={() => navigate(step + 1)}
+                >
+                  {step === 3
+                    ? "Compare my options"
+                    : step === 2
+                      ? "Continue to costs"
+                      : "Continue to childcare"}{" "}
+                  <span aria-hidden="true">→</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="secondary-button" onClick={() => setStep(1)}>
+                  Edit my week
+                </button>
+                <button className="primary-button" onClick={save}>
                   Save this week
                 </button>
-                <button onClick={restoreWeek}>Load saved week</button>
-                <button onClick={reuseSettings} disabled={!valid}>
-                  Reuse for next week
-                </button>
-              </div>
-              <small>Saved on this browser only · no cloud sync</small>
+              </>
+            )}
+          </div>
+          {step === 4 && (
+            <button className="next-week-button" onClick={reuse}>
+              Plan next week <span aria-hidden="true">→</span>
+              <small>Copy care settings and add new shifts</small>
+            </button>
+          )}
+          <details className="saved-tools">
+            <summary>Saved week & privacy</summary>
+            <p className="hint">
+              Save one week on this browser only. Nothing is saved automatically
+              or sent to a server. No cloud sync.
+            </p>
+            <div className="actions">
+              <button className="text-button" onClick={restore}>
+                Load saved week
+              </button>
               <button
-                className="forget-week"
+                className="text-button"
                 onClick={() => {
                   try {
                     localStorage.removeItem(STORAGE_KEY);
-                    setStorageNote(
+                    setNote(
                       "Saved week removed from this browser. Your current inputs are unchanged.",
                     );
                   } catch {
-                    setStorageNote(
-                      "This browser did not allow removing the saved week.",
-                    );
+                    setNote("Could not access local storage.");
                   }
                 }}
               >
                 Remove saved week
               </button>
             </div>
-            {storageNote && (
-              <p className="storage-message" role="status">
-                {storageNote}
-              </p>
-            )}
-            <div className="planner-grid">
-              <div className="forms" key={formKey}>
-                <FamilyCareForm plan={plan} change={setPlan} issues={issues} />
-                <ShiftOffersForm plan={plan} change={setPlan} issues={issues} />
-                {issues.length > 0 && (
-                  <div className="validation-summary" role="alert">
-                    <h3>A few details need attention</h3>
-                    <ul>
-                      {issues.map((x, i) => (
-                        <li key={i}>
-                          {x.message}{" "}
-                          <small>
-                            (
-                            {x.path.startsWith("offers.")
-                              ? `Shift ${Number(x.path.split(".")[1]) + 1}`
-                              : x.path.split(".")[0]}
-                            )
-                          </small>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                <p className="privacy-note">
-                  ◇ Your plan is processed on this device. We do not ask for
-                  names, addresses or details about your children.
-                </p>
-              </div>
-              <ResultsPanel
-                plan={plan}
-                result={result}
-                pending={pending}
-                started={started}
-                error={error}
-                onOptimize={() => {
-                  setStarted(true);
-                  setCalculation(null);
-                  setRevision((r) => r + 1);
-                }}
-              />
-            </div>
-          </div>
-        )}
-        <section className="limits-note">
-          <strong>Real planning. Honest estimates.</strong>
-          <p>
-            ShiftMargin compares optional extra shifts. It does not book
-            childcare or calculate your actual taxes. Confirm care directly.
-            Overtime, benefit changes, subsidies and your regular family
-            expenses are outside this estimate.
-          </p>
-        </section>
+          </details>
+        </div>
       </main>
       <footer>
-        <a className="brand small-brand" href="#">
-          ShiftMargin.
-        </a>
-        <span>Made for the life around your work.</span>
-        <span>USD · Local times · No tracking</span>
+        <span>ShiftMargin · Earn more. Keep more.</span>
+        <span>Estimates, not guarantees. Confirm care directly.</span>
       </footer>
     </>
   );

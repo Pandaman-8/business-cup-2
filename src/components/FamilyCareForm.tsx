@@ -1,197 +1,281 @@
-import type { Issue, PlanInput } from "../domain/types";
-import { ZONES } from "../domain/time";
-import { Field, MoneyField, NumberField, Windows } from "./Fields";
-const zoneLabels = [
-  "Eastern",
-  "Central",
-  "Mountain",
-  "Pacific",
-  "Alaska",
-  "Arizona",
-  "Hawaii",
+import Disclosure from "./Disclosure";
+import { useState } from "react";
+import type { TimeRange } from "../domain/types";
+import { rangeLabel } from "../domain/time";
+import { careForShift } from "../ui/planAdapter";
+import type { FormProps } from "./ShiftOffersForm";
+import { DayTimeRange, NumberField } from "./Fields";
+type Source =
+  | "partnerAvailable"
+  | "unpaidHelperCoverage"
+  | "existingCareCoverage"
+  | "sitter";
+const sources: { key: Source; title: string; description: string }[] = [
+  {
+    key: "partnerAvailable",
+    title: "My partner",
+    description: "No added childcare cost.",
+  },
+  {
+    key: "unpaidHelperCoverage",
+    title: "Family or friend",
+    description: "Unpaid help from someone you know.",
+  },
+  {
+    key: "sitter",
+    title: "Paid sitter",
+    description: "You’ll enter their rate in the next step.",
+  },
+  {
+    key: "existingCareCoverage",
+    title: "Care is already arranged",
+    description: "Already paid for or free. No added cost.",
+  },
 ];
 export default function FamilyCareForm({
   plan,
   change,
   issues,
-}: {
-  plan: PlanInput;
-  change: (p: PlanInput) => void;
-  issues: Issue[];
-}) {
-  const patch = (value: Partial<PlanInput>) => change({ ...plan, ...value });
-  const error = (path: string) => issues.find((i) => i.path === path)?.message;
+  advanced,
+}: FormProps) {
+  const [active, setActive] = useState<Source[]>(() =>
+    sources
+      .filter((s) =>
+        s.key === "sitter" ? !!plan.paidCare : plan[s.key].length > 0,
+      )
+      .map((s) => s.key),
+  );
+  const [unsure, setUnsure] = useState(false);
+  const setRanges = (key: Source, ranges: TimeRange[]) =>
+    change(
+      key === "sitter"
+        ? { ...plan, paidCare: { ...plan.paidCare!, availability: ranges } }
+        : {
+            ...plan,
+            [key]: ranges,
+            ...(key === "partnerAvailable"
+              ? { household: "two-adults" as const }
+              : {}),
+          },
+    );
   return (
-    <section className="panel" aria-labelledby="family-heading">
-      <div className="section-heading">
-        <span className="step">01</span>
-        <div>
-          <h2 id="family-heading">Your family, your week</h2>
-          <p>A little context makes a better plan.</p>
-        </div>
-      </div>
-      <div className="grid-two">
-        <Field
-          label="Week starting Monday"
-          type="date"
-          value={plan.weekStart}
-          issue={error("weekStart")}
-          onChange={(e) => patch({ weekStart: e.target.value })}
-        />
-        <label className="field">
-          <span>Time zone</span>
-          <select
-            value={plan.timeZone}
-            onChange={(e) => patch({ timeZone: e.target.value })}
+    <>
+      <header className="page-heading">
+        <h1>Who can watch your child while you’re working?</h1>
+        <p>Choose everyone who can help, then confirm their hours.</p>
+      </header>
+      <div className="care-options">
+        {sources.map((s) => (
+          <label
+            className={`care-option ${active.includes(s.key) ? "selected" : ""}`}
+            key={s.key}
           >
-            {ZONES.map((z, i) => (
-              <option key={z} value={z}>
-                {zoneLabels[i]} ·{" "}
-                {z
-                  .replace("America/", "")
-                  .replace("Pacific/", "")
-                  .replaceAll("_", " ")}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          <span>Household</span>
-          <select
-            value={plan.household}
-            onChange={(e) =>
-              patch({
-                household: e.target.value as PlanInput["household"],
-                partnerAvailable:
-                  e.target.value === "single-parent"
-                    ? []
-                    : plan.partnerAvailable,
-              })
-            }
-          >
-            <option value="two-adults">Two adults</option>
-            <option value="single-parent">Single parent</option>
-          </select>
-        </label>
-        <NumberField
-          label="Estimated withholding (%)"
-          min="0"
-          max="60"
-          step="0.01"
-          value={plan.withholdingPercent}
-          onChange={(withholdingPercent) => patch({ withholdingPercent })}
-        />
+            <input
+              type="checkbox"
+              checked={active.includes(s.key)}
+              onChange={(e) => {
+                setUnsure(false);
+                setActive(
+                  e.target.checked
+                    ? [...active, s.key]
+                    : active.filter((k) => k !== s.key),
+                );
+                if (s.key === "sitter")
+                  change({
+                    ...plan,
+                    paidCare: e.target.checked
+                      ? {
+                          availability: [],
+                          hourlyCostCents: NaN,
+                          minBillableMinutesPerVisit: 0,
+                        }
+                      : null,
+                  });
+                else if (!e.target.checked) setRanges(s.key, []);
+              }}
+            />
+            <span>
+              <strong>{s.title}</strong>
+              <small>{s.description}</small>
+            </span>
+          </label>
+        ))}
       </div>
-      <div className="subheading">
-        <h3>Who can cover care?</h3>
-        <p>
-          Enter only times when someone is available. Blank times are never
-          assumed covered.
+      <button
+        type="button"
+        className="text-button"
+        aria-pressed={unsure}
+        onClick={() => setUnsure(!unsure)}
+      >
+        I’m not sure yet
+      </button>
+      {unsure && (
+        <p className="notice">
+          That’s okay. We’ll show where care is still missing. We can only
+          recommend shifts covered by the hours you enter.
         </p>
-      </div>
-      {plan.household === "two-adults" && (
-        <Windows
-          title="Partner"
-          description="When your partner can look after your child."
-          ranges={plan.partnerAvailable}
-          onChange={(partnerAvailable) => patch({ partnerAvailable })}
-          week={plan.weekStart}
-          issues={issues}
-          path="partnerAvailable"
-        />
       )}
-      <details className="care-details">
-        <summary>
-          Arranged care & family help{" "}
-          <span>
-            {plan.existingCareCoverage.length +
-              plan.unpaidHelperCoverage.length}{" "}
-            windows
-          </span>
-        </summary>
-        <Windows
-          title="Arranged care"
-          description="Care already arranged or paid for. No additional cost."
-          ranges={plan.existingCareCoverage}
-          onChange={(existingCareCoverage) => patch({ existingCareCoverage })}
-          week={plan.weekStart}
-          issues={issues}
-          path="existingCareCoverage"
-        />
-        <Windows
-          title="Family help"
-          description="Free help from a relative or friend. Confirm with them directly."
-          ranges={plan.unpaidHelperCoverage}
-          onChange={(unpaidHelperCoverage) => patch({ unpaidHelperCoverage })}
-          week={plan.weekStart}
-          issues={issues}
-          path="unpaidHelperCoverage"
-        />
-      </details>
-      <div className="sitter-toggle">
-        <div>
-          <h3>Paid sitter</h3>
-          <p>One sitter, with a total rate for your household.</p>
-        </div>
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={Boolean(plan.paidCare)}
-            onChange={(e) =>
-              patch({
-                paidCare: e.target.checked
-                  ? {
-                      availability: [],
-                      hourlyCostCents: 1800,
-                      minBillableMinutesPerVisit: 120,
+      {sources
+        .filter((s) => active.includes(s.key))
+        .map((source) => {
+          const key = source.key;
+          const ranges =
+            key === "sitter" ? (plan.paidCare?.availability ?? []) : plan[key];
+          const path = key === "sitter" ? "paidCare.availability" : key;
+          return (
+            <section
+              className="form-section"
+              key={key}
+              aria-label={`${source.title} availability`}
+            >
+              <h2>{source.title}: when are they available?</h2>
+              <p className="hint">
+                Only select hours you know are available. Full-shift hours
+                include the commute.
+              </p>
+              <div className="care-presets">
+                {plan.offers.map((s) => {
+                  let r: TimeRange;
+                  try {
+                    r = careForShift(s);
+                  } catch {
+                    return null;
+                  }
+                  const checked = ranges.some(
+                    (x) => x.start === r.start && x.end === r.end,
+                  );
+                  return (
+                    <label className="check-row" key={s.id}>
+                      <input
+                        type="checkbox"
+                        disabled={!checked && ranges.length >= 28}
+                        checked={checked}
+                        onChange={(e) =>
+                          setRanges(
+                            key,
+                            e.target.checked
+                              ? [...ranges, r]
+                              : ranges.filter(
+                                  (x) => x.start !== r.start || x.end !== r.end,
+                                ),
+                          )
+                        }
+                      />
+                      <span>
+                        <strong>Available for {s.title}</strong>
+                        <small>{rangeLabel(r)} · including travel</small>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              {ranges.length === 0 && (
+                <p className="notice">No availability confirmed yet.</p>
+              )}
+              <Disclosure
+                expanded={advanced}
+                attention={issues.some((i) => i.path.startsWith(path))}
+              >
+                <summary>
+                  Partial hours or other availability{" "}
+                  <span>
+                    {ranges.length} saved{" "}
+                    {ranges.length === 1 ? "window" : "windows"}
+                  </span>
+                </summary>
+                {ranges.map((r, i) => (
+                  <div className="care-window" key={i}>
+                    <div className="row-between">
+                      <h3>Window {i + 1}</h3>
+                      <button
+                        className="text-button"
+                        type="button"
+                        aria-label={`Remove ${source.title} window ${i + 1}`}
+                        onClick={() =>
+                          setRanges(
+                            key,
+                            ranges.filter((_, j) => j !== i),
+                          )
+                        }
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <DayTimeRange
+                      label={`${source.title} window ${i + 1}`}
+                      week={plan.weekStart}
+                      range={r}
+                      issue={
+                        issues.find((x) => x.path === `${path}.${i}`)?.message
+                      }
+                      onChange={(value) =>
+                        setRanges(
+                          key,
+                          ranges.map((old, j) => (j === i ? value : old)),
+                        )
+                      }
+                    />
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="secondary-button"
+                  disabled={ranges.length >= 28}
+                  onClick={() => {
+                    const date =
+                      plan.offers[0]?.work.start.slice(0, 10) ?? plan.weekStart;
+                    setRanges(key, [
+                      ...ranges,
+                      { start: date + "T09:00", end: date + "T17:00" },
+                    ]);
+                  }}
+                >
+                  + Add availability window
+                </button>
+              </Disclosure>
+              {key === "sitter" && plan.paidCare && (
+                <Disclosure
+                  expanded={advanced}
+                  defaultOpen={plan.paidCare.minBillableMinutesPerVisit > 0}
+                  attention={issues.some(
+                    (i) => i.path === "paidCare.minBillableMinutesPerVisit",
+                  )}
+                >
+                  <summary>Does the sitter have a minimum booking?</summary>
+                  <NumberField
+                    label="Minimum sitter visit (minutes)"
+                    min="0"
+                    max="10080"
+                    step="15"
+                    value={plan.paidCare.minBillableMinutesPerVisit}
+                    issue={
+                      issues.find(
+                        (i) => i.path === "paidCare.minBillableMinutesPerVisit",
+                      )?.message
                     }
-                  : null,
-              })
-            }
-          />
-          <span>Include sitter</span>
-        </label>
-      </div>
-      {plan.paidCare && (
-        <div className="sitter-settings">
-          <div className="grid-two">
-            <MoneyField
-              label="Sitter rate ($/hour)"
-              value={plan.paidCare.hourlyCostCents}
-              issue={error("paidCare.hourlyCostCents")}
-              onChange={(hourlyCostCents) =>
-                patch({ paidCare: { ...plan.paidCare!, hourlyCostCents } })
-              }
-            />
-            <NumberField
-              label="Minimum visit (minutes)"
-              min="0"
-              step="15"
-              value={plan.paidCare.minBillableMinutesPerVisit}
-              onChange={(minBillableMinutesPerVisit) =>
-                patch({
-                  paidCare: { ...plan.paidCare!, minBillableMinutesPerVisit },
-                })
-              }
-            />
-          </div>
-          <Windows
-            title="Sitter"
-            description="Each paid visit must fit entirely within these times, including the minimum booking."
-            ranges={plan.paidCare.availability}
-            onChange={(availability) =>
-              patch({ paidCare: { ...plan.paidCare!, availability } })
-            }
-            week={plan.weekStart}
-            issues={issues}
-            path="paidCare.availability"
-          />
-        </div>
-      )}
-      <p className="footnote">
-        Use 15-minute increments. All times are local to your selected zone.
-        Weeks with a daylight saving clock change are not supported.
+                    onChange={(minBillableMinutesPerVisit) =>
+                      change({
+                        ...plan,
+                        paidCare: {
+                          ...plan.paidCare!,
+                          minBillableMinutesPerVisit,
+                        },
+                      })
+                    }
+                  />
+                  <p className="hint">
+                    Leave 0 if there is no minimum. The entire paid visit must
+                    fit their available hours.
+                  </p>
+                </Disclosure>
+              )}
+            </section>
+          );
+        })}
+      <p className="hint">
+        Entering availability doesn’t book anyone. Confirm care directly before
+        accepting a shift.
       </p>
-    </section>
+    </>
   );
 }

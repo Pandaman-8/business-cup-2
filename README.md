@@ -23,7 +23,13 @@ Development: http://localhost:5173. Build output: `dist/`.
 
 ## Demo
 
-Load **Try a sample family**. With one extra shift allowed, Sunday leaves **$98.40**; Saturday alone leaves **$23.20**. Change maximum shifts to two: both leave **$121.60**. Remove Sunday partner availability: Sunday is rejected and Saturday is selected. These values are calculated, never special-cased.
+Choose **Try an example**. With one extra shift allowed, Sunday leaves **$98.40**; Saturday alone leaves **$23.20**. Change maximum shifts to two: both leave **$121.60**. Remove Sunday partner availability: Sunday is rejected and Saturday is selected. These values are calculated, never special-cased.
+
+## Quick Compare and Advanced Planning
+
+Start with your shifts, confirm specific childcare hours, then enter relevant costs. The result explains the recommended plan and compares it with a feasible alternative. **Advanced Planning** reveals commute buffers, extended availability and work limits on the same focused screens. Switching modes keeps your data.
+
+Changing the week offers an explicit move-or-clear choice, validates the full candidate, and applies it atomically. Care is never inferred from choosing a provider.
 
 ## How it works
 
@@ -37,7 +43,7 @@ Dollar input is converted once to integer cents. Shift earnings and each full si
 
 ## Return next week
 
-Choose **Save this week** to store one validated plan locally. **Load saved week** restores it; **Remove saved week** removes only ShiftMargin's saved data. Nothing is saved automatically and there is no cloud sync. **Reuse for next week** advances care windows seven days, preserves household assumptions, clears shift offers and reminds you to reconfirm availability. A DST transition week is rejected.
+Choose **Save this week** to store one validated plan locally. **Load saved week** restores it; **Remove saved week** removes only ShiftMargin's saved data. Nothing is saved automatically and there is no cloud sync. **Plan next week** advances care windows seven days, preserves household assumptions, clears shift offers and reminds you to reconfirm availability. A DST transition week is rejected.
 
 ## Boundaries
 
@@ -49,6 +55,8 @@ Static output works on GitHub Pages, Vercel or Netlify. The relative asset base 
 
 ## Documentation
 
+- [V2 UX architecture](docs/UX_REDESIGN_V2.md)
+- [V2 release QA](docs/QA_V2.md)
 - [Master plan](docs/MASTER_PLAN.md)
 - [Audit and product decisions](docs/PRODUCT_DECISIONS.md)
 - [Technical design and exactness model](docs/TECHNICAL_DESIGN.md)

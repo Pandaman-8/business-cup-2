@@ -6,8 +6,8 @@
 - Public source: https://github.com/Pandaman-8/business-cup-2
 - Build/test/deploy history: https://github.com/Pandaman-8/business-cup-2/actions
 - Product decisions and limits: PRODUCT_DECISIONS.md
-- Actual QA: ACCEPTANCE_TESTS.md
-- Screenshots: [desktop](screenshots/production-desktop.jpg) and [mobile](screenshots/production-mobile.jpg), captured from the live final application.
+- Actual QA: QA_V2.md (V2); ACCEPTANCE_TESTS.md (V1)
+- Screenshots: [desktop](screenshots/v2-desktop.jpg) and [mobile](screenshots/v2-mobile.jpg), captured from the live final application.
 
 The pitch PDF and personal contest submission are the captain's tasks under the supplied execution directive. No submission is claimed. Deadline supplied by captain: 2026-11-15 12:00 Asia/Almaty.
 
@@ -27,11 +27,11 @@ Sunday has lower gross pay but leaves $75.20 more in this example. The differenc
 
 ## 60–90 second demonstration
 
-1. Open the live link and choose **Try a sample family**.
+1. Open the live link and choose **Try an example**.
 2. Explain the one-shift cap: Saturday pays more gross, but Sunday keeps $98.40 versus $23.20.
-3. Set maximum extra shifts to 2: the computed recommendation becomes both, $121.60.
-4. Remove partner availability: Sunday is rejected, with the precise uncovered interval shown.
-5. Reset sample. Save this week, then reuse next week: rates and care windows carry forward, new offers start empty. Copied availability still needs confirmation.
+3. Open **What if my plans change?** and set maximum extra shifts to 2: the computed recommendation becomes both, $121.60.
+4. Open **Childcare** and uncheck **My partner**: Sunday is rejected, with the precise uncovered interval shown.
+5. Reset the example. Save this week, then Plan next week: rates and care windows carry forward, new offers start empty. Copied availability still needs confirmation.
 
 ## Checked competitor positioning (2026-11-14)
 

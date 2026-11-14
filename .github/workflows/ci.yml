@@ -2,7 +2,7 @@ name: Test and build
 on:
   pull_request:
   push:
-    branches: [main, codex/shiftmargin-mvp]
+    branches: [main, "codex/**"]
 permissions:
   contents: read
 jobs:
