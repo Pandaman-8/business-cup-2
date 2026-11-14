@@ -2,34 +2,34 @@
 
 2026-11-14. Automated suite: **30 tests PASS** with `npm test -- --reporter=verbose --silent=false`. `npm run build` PASS (strict TypeScript and Vite production build). Installed dependencies: `npm audit` reports 0 vulnerabilities at installation. GitHub Actions build/test also passed on the first source checkpoint.
 
-| Test name                         | Actual result                                                                      |
-| --------------------------------- | ---------------------------------------------------------------------------------- |
-| DEMO_ONE_SHIFT                    | PASS: Sunday $98.40, Saturday $23.20                                               |
-| DEMO_TWO_SHIFTS                   | PASS: both $121.60                                                                 |
-| PARTNER_UNKNOWN / NO_CARE         | PASS: Sunday rejected with exact 09:00–15:00 gap, Saturday chosen                  |
-| CHANGING_RATE / USER_EDIT         | PASS: sitter rate changes real computed costs and recommendation                   |
-| NEGATIVE_ALL and ZERO             | PASS: empty set wins                                                               |
-| OVERLAP                           | PASS: work and commute overlaps rejected                                           |
-| ALREADY_COVERED                   | PASS: overlapping arranged/free care never double billed                           |
-| TOUCHING_BOUNDARIES / PARTIAL     | PASS: exact residual intervals and half-open boundaries                            |
-| MIN_VISIT: real booking or reject | PASS: two-hour charge requires actual two-hour availability                        |
-| MIN_VISIT: extend before need     | PASS: actual prior-hour extension fits availability                                |
-| TRAVEL_TIME                       | PASS: care includes commute                                                        |
-| CENT_PRECISION                    | PASS: decimal parser and half-up earnings/withholding                              |
-| SHIFT_CAP / HOUR_CAP              | PASS: zero and exact boundary                                                      |
-| SAME_CARE_UNION                   | PASS: touching shifts share one visit                                              |
-| BRIDGING                          | PASS: paid bridge beats separate minimum bookings                                  |
-| SEPARATE_VISITS                   | PASS: long free gap makes splitting cheaper                                        |
-| NO_SITTER / EMPTY                 | PASS: no invented coverage; empty valid input returns $0                           |
-| DETERMINISTIC_TIES                | PASS: stable IDs independent of input ordering                                     |
-| OUTSIDE_WEEK                      | PASS: dates, quarter-hour alignment, week-end and commute edges                    |
-| DST                               | PASS: US spring/fall rejected, Phoenix allowed                                     |
-| INVALID structures                | PASS: malformed inputs cannot enter solver                                         |
-| INVALID values                    | PASS: rates, caps, duplicate IDs, dates and household consistency                  |
-| UNION                             | PASS: overlapping and touching intervals merge                                     |
-| INDEPENDENT_ORACLE                | PASS: 1,536 small cases against exhaustive visit-set enumeration                   |
-| INDEPENDENT_SUBSET_ORACLE         | PASS: whole-plan selection matches independent brute force                         |
-| PERFORMANCE                       | PASS: all 1,024 subsets; full-week sitter, 10 offers, ~3.7s on development machine |
+| Test name                         | Actual result                                                                          |
+| --------------------------------- | -------------------------------------------------------------------------------------- |
+| DEMO_ONE_SHIFT                    | PASS: Sunday $98.40, Saturday $23.20                                                   |
+| DEMO_TWO_SHIFTS                   | PASS: both $121.60                                                                     |
+| PARTNER_UNKNOWN / NO_CARE         | PASS: Sunday rejected with exact 09:00–15:00 gap, Saturday chosen                      |
+| CHANGING_RATE / USER_EDIT         | PASS: sitter rate changes real computed costs and recommendation                       |
+| NEGATIVE_ALL and ZERO             | PASS: empty set wins                                                                   |
+| OVERLAP                           | PASS: work and commute overlaps rejected                                               |
+| ALREADY_COVERED                   | PASS: overlapping arranged/free care never double billed                               |
+| TOUCHING_BOUNDARIES / PARTIAL     | PASS: exact residual intervals and half-open boundaries                                |
+| MIN_VISIT: real booking or reject | PASS: two-hour charge requires actual two-hour availability                            |
+| MIN_VISIT: extend before need     | PASS: actual prior-hour extension fits availability                                    |
+| TRAVEL_TIME                       | PASS: care includes commute                                                            |
+| CENT_PRECISION                    | PASS: decimal parser and half-up earnings/withholding                                  |
+| SHIFT_CAP / HOUR_CAP              | PASS: zero and exact boundary                                                          |
+| SAME_CARE_UNION                   | PASS: touching shifts share one visit                                                  |
+| BRIDGING                          | PASS: paid bridge beats separate minimum bookings                                      |
+| SEPARATE_VISITS                   | PASS: long free gap makes splitting cheaper                                            |
+| NO_SITTER / EMPTY                 | PASS: no invented coverage; empty valid input returns $0                               |
+| DETERMINISTIC_TIES                | PASS: stable IDs independent of input ordering                                         |
+| OUTSIDE_WEEK                      | PASS: dates, quarter-hour alignment, week-end and commute edges                        |
+| DST                               | PASS: US spring/fall rejected, Phoenix allowed                                         |
+| INVALID structures                | PASS: malformed inputs cannot enter solver                                             |
+| INVALID values                    | PASS: rates, caps, duplicate IDs, dates and household consistency                      |
+| UNION                             | PASS: overlapping and touching intervals merge                                         |
+| INDEPENDENT_ORACLE                | PASS: 1,536 small cases against exhaustive visit-set enumeration                       |
+| INDEPENDENT_SUBSET_ORACLE         | PASS: whole-plan selection matches independent brute force                             |
+| PERFORMANCE                       | PASS: all 1,024 subsets; full-week sitter, 10 offers, ~3.2–3.7s on development machine |
 
 The stress-case time is a measured observation, not a performance guarantee. Solver runs in a cancellable Web Worker. Typical two-offer fixtures complete in milliseconds. Input edits cancel obsolete calculations; invalid input hides recommendations.
 
@@ -44,11 +44,11 @@ Using the actual built app and in-app Chromium, not mocked components:
 - Three-decimal currency input hides result and produces a validation message: PASS.
 - Single-parent mode clears partner care: PASS.
 - Desktop landing visual inspection: PASS.
-- Final mobile, production and persistence checks: pending release verification below.
+- Mobile, production and persistence checks: PASS as recorded below.
 
 ## Delivery status
 
-Source is public at https://github.com/Pandaman-8/business-cup-2. GitHub Pages configured for Actions at https://pandaman-8.github.io/business-cup-2/; the initial feature-branch deploy was rejected by the environment's main-only deployment policy. Release uses a normal fast-forward update to main, preserving that policy. Do not treat configuration as deployment evidence; final live verification must be recorded.
+Source is public at https://github.com/Pandaman-8/business-cup-2. Production is live at https://pandaman-8.github.io/business-cup-2/. The initial feature-branch deploy was rejected by the environment's main-only deployment policy; successful releases preserve that policy and deploy from main.
 
 Competition submission and pitch PDF are not claimed complete. Captain retains the submission task and deck authoring per the execution directive.
 
@@ -67,6 +67,21 @@ At the 375×812 viewport override, document client/scroll widths were both 360px
 | NEXT_WEEK       | PASS: care/rates carried forward, offers cleared, original unmodified |
 | NEXT_WEEK_DST   | PASS: transition destination rejected                                 |
 
-P1 browser roundtrip and final release verification follow.
+P1 browser roundtrip results follow.
 
 P1 browser checks on the built application: **PASS**. Save sample → reload → Load saved week restored $98.40. Reuse advanced Monday to 2026-11-23, partner to Sunday 2026-11-29 and sitter to Saturday 2026-11-28, preserved rates and cleared all offers. The reconfirmation notice was visible. Remove saved week → Load showed no saved plan and preserved current inputs.
+
+## Final production release
+
+Application commit: `d21945b40da66290fc93ff9810f7323cbbfc9ed9`. [CI](https://github.com/Pandaman-8/business-cup-2/actions/runs/43584709152) and [deployment](https://github.com/Pandaman-8/business-cup-2/actions/runs/43584709163): **SUCCESS**.
+
+The public root serves the final HTML and bundle. An existing browser cached the previous HTML, so final interactive verification used `?v=d21945b` to obtain a fresh cache key; no private bypass or authentication was used. Public application and worker bytes were downloaded and compared with local production output:
+
+- Application SHA-256: `47176429a3a9b7d4300cff1510c1d63620e1ff2d394434ffb68f58e784de28e7`
+- Optimizer worker SHA-256: `70b078756e678ede44dab1df33a5c66abd38225b4150e7dcc215562e183d8830`
+
+Both matched exactly. Final live sample returned $98.40. Save → reload → Load restored $98.40 on the public origin; test saved data was then removed. At 1280px desktop and 375px mobile overrides, client width equaled scroll width. All inputs/selects had labels. Actual production screenshots are in `screenshots/production-desktop.jpg` and `screenshots/production-mobile.jpg`.
+
+Secret-pattern scan of tracked project content (excluding dependencies, build and Git internals): no matches. `git diff --check`: PASS. No sensitive child data or submission URL was added.
+
+Final release mobile what-if recheck: cap 2 → **$121.60**; remove Sunday partner window → **$23.20**. Production application error log: empty. Browser viewport override reset after QA.

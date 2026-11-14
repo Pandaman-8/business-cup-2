@@ -7,7 +7,7 @@
 - Build/test/deploy history: https://github.com/Pandaman-8/business-cup-2/actions
 - Product decisions and limits: PRODUCT_DECISIONS.md
 - Actual QA: ACCEPTANCE_TESTS.md
-- Screenshots: screenshots/ (captured from the live application; final capture pending).
+- Screenshots: [desktop](screenshots/production-desktop.jpg) and [mobile](screenshots/production-mobile.jpg), captured from the live final application.
 
 The pitch PDF and personal contest submission are the captain's tasks under the supplied execution directive. No submission is claimed. Deadline supplied by captain: 2026-11-15 12:00 Asia/Almaty.
 
