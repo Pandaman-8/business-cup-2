@@ -1,6 +1,6 @@
 # Acceptance tests — execution record
 
-2026-11-14. Automated suite: **26 tests PASS** with `npm test -- --reporter=verbose --silent=false`. `npm run build` PASS (strict TypeScript and Vite production build). Installed dependencies: `npm audit` reports 0 vulnerabilities at installation. GitHub Actions build/test also passed on the first source checkpoint.
+2026-11-14. Automated suite: **30 tests PASS** with `npm test -- --reporter=verbose --silent=false`. `npm run build` PASS (strict TypeScript and Vite production build). Installed dependencies: `npm audit` reports 0 vulnerabilities at installation. GitHub Actions build/test also passed on the first source checkpoint.
 
 | Test name                         | Actual result                                                                      |
 | --------------------------------- | ---------------------------------------------------------------------------------- |
@@ -51,3 +51,22 @@ Using the actual built app and in-app Chromium, not mocked components:
 Source is public at https://github.com/Pandaman-8/business-cup-2. GitHub Pages configured for Actions at https://pandaman-8.github.io/business-cup-2/; the initial feature-branch deploy was rejected by the environment's main-only deployment policy. Release uses a normal fast-forward update to main, preserving that policy. Do not treat configuration as deployment evidence; final live verification must be recorded.
 
 Competition submission and pitch PDF are not claimed complete. Captain retains the submission task and deck authoring per the execution directive.
+
+## Public P0 verification (2026-11-14)
+
+GitHub Actions run `43584355016` deployed commit `4876a2d` successfully. Public HTTPS returned HTTP 200 without credentials. A fresh browser navigation to the public URL loaded the complete app without a login. The live sample calculated $98.40, changing the cap calculated $121.60, and removing partner care calculated $23.20. Browser application error log was empty.
+
+At the 375×812 viewport override, document client/scroll widths were both 360px (15px native scrollbar); no horizontal overflow. All input/select controls were wrapped in labels. Mobile rate editing updated Sunday from $98.40 to $132.00. Native Tab key injection did not advance focus in the embedded browser automation; full physical-keyboard traversal is not claimed. Semantic controls and visible CSS focus styling are implemented; a physical-keyboard check remains useful.
+
+## P1 automated tests
+
+| Test            | Result                                                                |
+| --------------- | --------------------------------------------------------------------- |
+| LOCAL_ROUNDTRIP | PASS: valid saved plan and illustrative label survive                 |
+| CORRUPT_STORAGE | PASS: malformed, old, oversized and invalid saved data rejected       |
+| NEXT_WEEK       | PASS: care/rates carried forward, offers cleared, original unmodified |
+| NEXT_WEEK_DST   | PASS: transition destination rejected                                 |
+
+P1 browser roundtrip and final release verification follow.
+
+P1 browser checks on the built application: **PASS**. Save sample → reload → Load saved week restored $98.40. Reuse advanced Monday to 2026-11-23, partner to Sunday 2026-11-29 and sitter to Saturday 2026-11-28, preserved rates and cleared all offers. The reconfirmation notice was visible. Remove saved week → Load showed no saved plan and preserved current inputs.

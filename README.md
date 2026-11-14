@@ -1,5 +1,7 @@
 # ShiftMargin
 
+**[Open the live app](https://pandaman-8.github.io/business-cup-2/)** · [Public source](https://github.com/Pandaman-8/business-cup-2)
+
 **Earn more. Keep more.** Choose optional shifts that leave your family with the most estimated additional money after childcare, commuting and assumed withholding.
 
 A browser-only React/TypeScript application for hourly-working US parents. No signup, backend, external price feed or booking. Sample data is fictional and runs through the same solver as custom inputs.
@@ -33,13 +35,17 @@ Load **Try a sample family**. With one extra shift allowed, Sunday leaves **$98.
 
 Dollar input is converted once to integer cents. Shift earnings and each full sitter visit round half up; estimated withholding rounds on aggregate gross using basis points. The optimizer runs in a cancellable Web Worker so edits cannot leave stale recommendations or freeze the form.
 
+## Return next week
+
+Choose **Save this week** to store one validated plan locally. **Load saved week** restores it; **Remove saved week** removes only ShiftMargin's saved data. Nothing is saved automatically and there is no cloud sync. **Reuse for next week** advances care windows seven days, preserves household assumptions, clears shift offers and reminds you to reconfirm availability. A DST transition week is rejected.
+
 ## Boundaries
 
 Single Monday–Sunday week, 15-minute precision, up to ten offers, 28 windows per care source, one sitter charging a household rate. Explicit partner coverage only; no partner inference. Arranged care is zero incremental expense. Supported IANA US zones; DST transition weeks rejected. No baseline work scheduling, overtime/complex taxes, benefit cliffs, subsidies, multi-provider booking or child-specific care requirements. All care is planned, **not confirmed**. No estimates prove real-world savings or market demand.
 
 ## Deployment
 
-Static output works on GitHub Pages, Vercel or Netlify. The relative asset base supports repository subpaths. `.github/workflows/deploy.yml` tests/builds and publishes `dist` with GitHub Pages; Pages must be enabled for GitHub Actions. The CI workflow separately checks tests and build. No API keys required.
+Static output works on GitHub Pages, Vercel or Netlify. The relative asset base supports repository subpaths. `.github/workflows/deploy.yml` tests/builds and publishes `dist` with GitHub Pages; Pages is enabled for GitHub Actions. Only pushes to main deploy, matching the existing main-only environment policy. The CI workflow separately checks tests and build. No API keys required.
 
 ## Documentation
 
@@ -47,5 +53,6 @@ Static output works on GitHub Pages, Vercel or Netlify. The relative asset base 
 - [Audit and product decisions](docs/PRODUCT_DECISIONS.md)
 - [Technical design and exactness model](docs/TECHNICAL_DESIGN.md)
 - [Acceptance tests and actual QA](docs/ACCEPTANCE_TESTS.md)
+- [Factual pitch handoff and competitor sources](docs/PITCH_EVIDENCE.md)
 
 Implementation follows the official [Vite guide](https://vite.dev/guide/) and [Tailwind Vite integration](https://tailwindcss.com/docs/installation/using-vite).

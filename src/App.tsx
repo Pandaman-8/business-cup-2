@@ -5,6 +5,12 @@ import { validate } from "./domain/validation";
 import FamilyCareForm from "./components/FamilyCareForm";
 import ShiftOffersForm from "./components/ShiftOffersForm";
 import ResultsPanel from "./components/ResultsPanel";
+import {
+  deserializeWeek,
+  nextWeekSettings,
+  serializeWeek,
+  STORAGE_KEY,
+} from "./domain/persistence";
 export default function App() {
   const [plan, setPlan] = useState<PlanInput>(demoWeek);
   const [open, setOpen] = useState(false),
@@ -18,6 +24,7 @@ export default function App() {
     error?: string;
   } | null>(null);
   const workspace = useRef<HTMLDivElement>(null);
+  const [storageNote, setStorageNote] = useState("");
   const issues = validate(plan);
   const valid = issues.length === 0;
   const result =
@@ -51,6 +58,7 @@ export default function App() {
     };
   }, [plan, started, valid, revision]);
   function load(isSample: boolean) {
+    setStorageNote("");
     setPlan(isSample ? demoWeek() : blankWeek());
     setOpen(true);
     setSample(isSample);
@@ -60,6 +68,56 @@ export default function App() {
     requestAnimationFrame(() =>
       workspace.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
     );
+  }
+  function saveWeek() {
+    try {
+      localStorage.setItem(STORAGE_KEY, serializeWeek(plan, sample));
+      setStorageNote(
+        "Week saved on this browser only. Saving again replaces the previous saved week.",
+      );
+    } catch {
+      setStorageNote(
+        "Could not save. Check your inputs and whether this browser allows local storage.",
+      );
+    }
+  }
+  function restoreWeek() {
+    try {
+      const text = localStorage.getItem(STORAGE_KEY);
+      if (!text) {
+        setStorageNote("No saved week in this browser yet.");
+        return;
+      }
+      const saved = deserializeWeek(text);
+      setPlan(saved.plan);
+      setSample(saved.illustrative);
+      setOpen(true);
+      setStarted(true);
+      setCalculation(null);
+      setFormKey((k) => k + 1);
+      setStorageNote(
+        "Saved week loaded. Recheck care availability before accepting shifts.",
+      );
+    } catch {
+      setStorageNote(
+        "Could not load this saved week. It may be damaged or use an older format. Your current inputs are unchanged.",
+      );
+    }
+  }
+  function reuseSettings() {
+    try {
+      setPlan(nextWeekSettings(plan));
+      setCalculation(null);
+      setStarted(false);
+      setFormKey((k) => k + 1);
+      setStorageNote(
+        "Family settings moved forward one week. Reconfirm every copied care window and add your new shift offers.",
+      );
+    } catch {
+      setStorageNote(
+        "Could not reuse these settings. Fix any input errors first; the next week must also be within 2020–2100 and have no daylight saving clock change.",
+      );
+    }
   }
   return (
     <>
@@ -107,6 +165,16 @@ export default function App() {
             <p className="hero-note">
               Free to use. No sign-up. Your inputs stay in this browser.
             </p>
+            {!open && (
+              <button className="text-button" onClick={restoreWeek}>
+                Load saved week
+              </button>
+            )}
+            {!open && storageNote && (
+              <p className="storage-message" role="status">
+                {storageNote}
+              </p>
+            )}
           </div>
           <div className="hero-art" aria-hidden="true">
             <div className="art-top">
@@ -170,6 +238,40 @@ export default function App() {
                 {sample ? "Illustrative sample · editable" : "Your custom week"}
               </div>
             </div>
+            <div className="week-tools" aria-label="Local week tools">
+              <div>
+                <button onClick={saveWeek} disabled={!valid}>
+                  Save this week
+                </button>
+                <button onClick={restoreWeek}>Load saved week</button>
+                <button onClick={reuseSettings} disabled={!valid}>
+                  Reuse for next week
+                </button>
+              </div>
+              <small>Saved on this browser only · no cloud sync</small>
+              <button
+                className="forget-week"
+                onClick={() => {
+                  try {
+                    localStorage.removeItem(STORAGE_KEY);
+                    setStorageNote(
+                      "Saved week removed from this browser. Your current inputs are unchanged.",
+                    );
+                  } catch {
+                    setStorageNote(
+                      "This browser did not allow removing the saved week.",
+                    );
+                  }
+                }}
+              >
+                Remove saved week
+              </button>
+            </div>
+            {storageNote && (
+              <p className="storage-message" role="status">
+                {storageNote}
+              </p>
+            )}
             <div className="planner-grid">
               <div className="forms" key={formKey}>
                 <FamilyCareForm plan={plan} change={setPlan} issues={issues} />

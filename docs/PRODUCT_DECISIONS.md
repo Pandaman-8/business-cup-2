@@ -16,3 +16,13 @@ Unchanged: target user, marginal-income objective, one sitter, no backend, exhau
 P0 includes no real-world tax or legal eligibility inference. Provider rate is assumed to cover the household; no assumptions about number or needs of children. Unsupported cases are visible in the product.
 
 Delivery: existing public repository owner is taken from origin, not invented. Static GitHub Pages is an acceptable fallback to preferred Vercel if available access supports it. Pitch evidence is in scope; deck authoring/submission stays with captain per directive.
+
+## P1 delivered after public P0
+
+Opt-in, versioned local saving keeps one week in the current browser. Load validates both the storage envelope and the domain input; corrupt/unsupported values fail visibly without replacing the current form. Remove saved week deletes only the app's own storage key. No cloud sync or automatic storage writes.
+
+Reuse for next week copies household assumptions and care windows forward seven calendar days, clears optional shift offers, and explicitly asks the user to reconfirm all copied availability. It rejects a destination DST week. This is a recurring-use mechanism, not evidence of measured retention.
+
+Browser QA found native date/time input events could update the displayed value without updating React state. Fields now process both native input and change events; the custom four-hour calculation was rechecked.
+
+Hosting uses the existing public GitHub repository and GitHub Pages. The environment's main-only deployment policy is preserved; deployment workflow now runs only on main. No paid hosting was purchased.

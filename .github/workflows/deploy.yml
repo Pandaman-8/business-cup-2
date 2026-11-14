@@ -1,7 +1,8 @@
 name: Deploy ShiftMargin
 on:
   push:
-    branches: [main, codex/shiftmargin-mvp]
+    branches: [main]
+    paths-ignore: ["docs/**", "README.md"]
   workflow_dispatch:
 permissions:
   contents: read

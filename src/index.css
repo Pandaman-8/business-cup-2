@@ -102,7 +102,7 @@ select {
   padding-right: 8px;
 }
 input::placeholder {
-  color: #7d877d;
+  color: #65725e;
 }
 .site-header {
   height: 92px;
@@ -267,7 +267,7 @@ input::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #7a856d;
+  color: #65725e;
   font-size: 12px;
   position: relative;
 }
@@ -320,7 +320,7 @@ input::placeholder {
   border-top: 1px solid #ccd5bc;
   padding-top: 15px;
   font-size: 10px;
-  color: #788468;
+  color: #65725e;
 }
 .how-it-works {
   display: grid;
@@ -334,7 +334,7 @@ input::placeholder {
 .how-it-works article > span {
   font-size: 9px;
   letter-spacing: 1.5px;
-  color: #7a886d;
+  color: #65725e;
   font-weight: 700;
 }
 .how-it-works h2 {
@@ -344,7 +344,7 @@ input::placeholder {
 .how-it-works p {
   font-size: 12px;
   line-height: 1.8;
-  color: #788070;
+  color: #65725e;
   max-width: 285px;
 }
 .hero-small {
@@ -406,7 +406,7 @@ input::placeholder {
   gap: 16px;
 }
 .workspace-heading .eyebrow {
-  color: #79866d;
+  color: #65725e;
   font-size: 9px;
 }
 .workspace-heading h2 {
@@ -466,7 +466,7 @@ input::placeholder {
 }
 .section-heading p {
   font-size: 11px;
-  color: #86907f;
+  color: #65725e;
   margin-top: 3px;
 }
 .section-heading > .badge {
@@ -498,7 +498,7 @@ input::placeholder {
 }
 .field > small {
   font-size: 10px;
-  color: #7b8575;
+  color: #65725e;
 }
 .subheading {
   margin: 27px 0 15px;
@@ -512,7 +512,7 @@ input::placeholder {
 .subheading p,
 .sitter-toggle p {
   font-size: 11px;
-  color: #7f8978;
+  color: #65725e;
   margin-top: 4px;
   line-height: 1.7;
 }
@@ -540,7 +540,7 @@ input::placeholder {
 }
 .hint {
   font-size: 11px;
-  color: #7c8676;
+  color: #65725e;
   line-height: 1.75;
   margin: 5px 0 12px;
 }
@@ -556,7 +556,7 @@ input::placeholder {
 }
 .icon-button {
   height: 43px;
-  color: #87907e;
+  color: #65725e;
   border: 0;
   background: transparent;
   font-size: 23px;
@@ -571,13 +571,13 @@ input::placeholder {
   text-align: left;
 }
 .text-button.muted {
-  color: #8d9388;
+  color: #65725e;
   font-size: 10px;
   padding: 0;
 }
 .empty-inline {
   font-size: 11px;
-  color: #8a9283;
+  color: #65725e;
   background: #f8f9f5;
   padding: 11px 12px;
   border-radius: 6px;
@@ -601,7 +601,7 @@ summary {
 summary span {
   float: right;
   font-size: 10px;
-  color: #929a89;
+  color: #65725e;
   font-weight: 400;
 }
 details .grid-two {
@@ -627,7 +627,7 @@ details .grid-two {
 .footnote {
   font-size: 10px;
   line-height: 1.8;
-  color: #939b8b;
+  color: #65725e;
   margin-top: 22px;
 }
 .limits {
@@ -648,7 +648,7 @@ details .grid-two {
 }
 .shift-top .eyebrow {
   font-size: 9px;
-  color: #879779;
+  color: #65725e;
 }
 .shift-card > .field {
   margin-bottom: 13px;
@@ -667,7 +667,7 @@ details .grid-two {
 }
 .gross-preview small {
   font-size: 10px;
-  color: #9aa28f;
+  color: #65725e;
 }
 .add-shift {
   width: 100%;
@@ -839,7 +839,7 @@ details .grid-two {
 .tag {
   font-size: 8px;
   background: #eff2e8;
-  color: #7b8b68;
+  color: #65725e;
   padding: 5px 7px;
   border-radius: 4px;
   white-space: nowrap;
@@ -868,7 +868,7 @@ details .grid-two {
 .care-line p {
   font-size: 10px;
   line-height: 1.7;
-  color: #89917f;
+  color: #65725e;
   margin-top: 3px;
 }
 .compact details {
@@ -878,7 +878,7 @@ details .grid-two {
 }
 .visit-time {
   font-size: 10px;
-  color: #7b846e;
+  color: #65725e;
   margin-top: 8px;
 }
 .alternative {
@@ -900,7 +900,7 @@ details .grid-two {
   display: block;
   font-size: 9px;
   margin-top: 5px;
-  color: #909986;
+  color: #65725e;
 }
 .alternative > strong {
   white-space: nowrap;
@@ -938,7 +938,7 @@ details .grid-two {
   margin-top: 12px;
   font-size: 10px;
   line-height: 1.8;
-  color: #8c9581;
+  color: #65725e;
 }
 .assumptions li {
   margin-bottom: 7px;
@@ -958,7 +958,7 @@ details .grid-two {
 }
 .privacy-note {
   font-size: 10px;
-  color: #939c87;
+  color: #65725e;
   padding: 0 14px;
   line-height: 1.8;
 }
@@ -980,7 +980,7 @@ details .grid-two {
 .limits-note p {
   font-size: 10px;
   line-height: 1.9;
-  color: #8d9583;
+  color: #65725e;
   max-width: 780px;
 }
 footer {
@@ -992,7 +992,7 @@ footer {
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid #e1e6d9;
-  color: #98a08d;
+  color: #65725e;
   font-size: 9px;
 }
 .small-brand {
@@ -1041,7 +1041,7 @@ footer {
 }
 .empty-state p {
   font-size: 11px;
-  color: #8c9780;
+  color: #65725e;
   line-height: 1.8;
   margin-top: 6px;
 }
@@ -1377,4 +1377,92 @@ footer {
     scroll-behavior: auto !important;
     transition: none !important;
   }
+}
+
+/* Readable form text and touch targets at every viewport. */
+.field > span {
+  font-size: 12px;
+}
+.hint,
+.subheading p,
+.sitter-toggle p,
+.section-heading p {
+  font-size: 12px;
+}
+.care-line p,
+.visit-time,
+.alternative small,
+.assumptions ul,
+.privacy-note,
+.footnote {
+  font-size: 11px;
+}
+.icon-button,
+.text-button {
+  min-height: 36px;
+}
+@media (max-width: 760px) {
+  .text-button,
+  .icon-button {
+    min-height: 44px;
+  }
+  .hero-actions button {
+    min-height: 44px;
+  }
+}
+
+.week-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.week-tools > div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.week-tools button {
+  border: 1px solid #d7dfce;
+  border-radius: 6px;
+  background: #f7f9f2;
+  padding: 9px 12px;
+  font-size: 11px;
+  color: #4f6841;
+}
+.week-tools small {
+  color: #65725e;
+  font-size: 10px;
+}
+.week-tools .forget-week {
+  background: none;
+  border-color: transparent;
+  font-size: 10px;
+  margin-left: auto;
+}
+.storage-message {
+  padding: 12px 16px;
+  border: 1px solid #d7e0ca;
+  background: #eef3e5;
+  border-radius: 8px;
+  font-size: 12px !important;
+  color: #536c43 !important;
+  margin: 12px 0 20px;
+}
+@media (max-width: 760px) {
+  .week-tools button {
+    min-height: 44px;
+  }
+  .week-tools .forget-week {
+    margin-left: 0;
+  }
+}
+.recommendation > div {
+  min-width: 0;
+}
+.recommendation strong,
+.alternative strong,
+.rejection strong {
+  overflow-wrap: anywhere;
 }
