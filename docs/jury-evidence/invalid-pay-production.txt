@@ -1,0 +1,101 @@
+- link "Skip to content":
+  - /url: "#main"
+- banner:
+  - button "ShiftMargin home":
+    - text: ShiftMargin
+    - generic: .
+  - generic: A clearer choice for your family.
+  - button "Advanced Planning"
+- main:
+  - navigation "Comparison steps":
+    - list:
+      - button "1 Your shifts":
+        - generic: "1"
+        - generic: Your shifts
+      - button "2 Childcare" [disabled]:
+        - generic: "2"
+        - generic: Childcare
+      - button "3 Your costs" [disabled]:
+        - generic: "3"
+        - generic: Your costs
+      - button "4 Your result" [disabled]:
+        - generic: "4"
+        - generic: Your result
+  - generic: Quick Compare
+  - alert: Please check the highlighted fields before continuing.
+  - generic "Week of Nov 16 · Chicago · Change":
+    - text: Week of Nov 16
+    - generic: · Chicago · Change
+  - option "New York"
+  - option "Chicago" [selected]
+  - option "Denver"
+  - option "Los Angeles"
+  - option "Anchorage"
+  - option "Phoenix"
+  - option "Honolulu"
+  - heading "Which shifts are you considering?" [level=1]
+  - paragraph: Start with the work you could take. We’ll compare what you keep.
+  - article "Shift 1":
+    - heading "Saturday shift" [level=2]
+    - button "Remove shift 1": Remove
+    - group "Shift 1":
+      - generic: Shift 1
+      - generic: Shift 1 day
+      - combobox "Shift 1 day":
+        - option "Monday · Nov 16"
+        - option "Tuesday · Nov 17"
+        - option "Wednesday · Nov 18"
+        - option "Thursday · Nov 19"
+        - option "Friday · Nov 20"
+        - option "Saturday · Nov 21" [selected]
+        - option "Sunday · Nov 22"
+      - generic: Shift 1 start time
+      - textbox "Shift 1 start time": 10:00
+      - generic: Shift 1 end time
+      - textbox "Shift 1 end time": 14:00
+      - generic "Ends on a different day"
+      - option "Monday · Nov 16"
+      - option "Tuesday · Nov 17"
+      - option "Wednesday · Nov 18"
+      - option "Thursday · Nov 19"
+      - option "Friday · Nov 20"
+      - option "Saturday · Nov 21" [selected]
+      - option "Sunday · Nov 22"
+      - option "Monday · Nov 23 (midnight only)"
+    - generic: Shift 1 hourly pay ($)
+    - textbox "Shift 1 hourly pay ($)":
+      - /placeholder: "0.00"
+      - text: 31.75531.7531.75
+    - generic: Enter $0–$10,000 in whole cents.
+    - generic "Commute & shift details"
+  - generic: Day for a new shift
+  - combobox "Day for a new shift":
+    - option "Monday · Nov 16"
+    - option "Tuesday · Nov 17"
+    - option "Wednesday · Nov 18"
+    - option "Thursday · Nov 19"
+    - option "Friday · Nov 20"
+    - option "Saturday · Nov 21" [selected]
+    - option "Sunday · Nov 22"
+  - button "+ Add another shift"
+  - group "How many extra shifts could you take?":
+    - generic: How many extra shifts could you take?
+    - group "Extra shift limit":
+      - button "Just one" [pressed]
+      - button "Up to two"
+      - button "Custom limit"
+    - paragraph: We’ll compare all your offers and stay within this limit.
+  - generic "Set a work-hour limit Optional"
+  - paragraph: Times are local to your selected time zone. Use :00, :15, :30 or :45.
+  - button "← Home"
+  - button "Continue to childcare" [active]:
+    - text: Continue to childcare
+    - generic: →
+  - generic "Saved week & privacy"
+  - paragraph: Save one week on this browser only. Nothing is saved automatically or sent to a server. Reloading closes an unsaved plan. No cloud sync.
+  - button "Load saved week"
+  - button "Remove saved week"
+- contentinfo:
+  - generic: ShiftMargin · Earn more. Keep more.
+  - button "Free & Plus"
+  - generic: Estimates, not guarantees. Confirm care directly.

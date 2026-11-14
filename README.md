@@ -61,6 +61,7 @@ Static output works on GitHub Pages, Vercel or Netlify. The relative asset base 
 
 ## Documentation
 
+- [Final jury handoff, release audit and evidence](docs/FINAL_JURY_HANDOFF.md)
 - [V2.2 audit](docs/V2_2_AUDIT.md)
 - [Free/Plus model and monetization limits](docs/MONETIZATION_V2_2.md)
 - [V2.2 release QA](docs/QA_V2_2.md)

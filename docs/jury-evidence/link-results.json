@@ -1,0 +1,136 @@
+[
+  {
+    "url": "https://baymard.com/research-articles/checkout-flow-average-form-fields",
+    "status": 200,
+    "final": "https://baymard.com/research-articles/checkout-flow-average-form-fields"
+  },
+  {
+    "url": "https://design-system.service.gov.uk/",
+    "status": 200,
+    "final": "https://design-system.service.gov.uk/"
+  },
+  {
+    "url": "https://design-system.service.gov.uk/components/error-message/",
+    "status": 200,
+    "final": "https://design-system.service.gov.uk/components/error-message/"
+  },
+  {
+    "url": "https://github.com/Pandaman-8/business-cup-2",
+    "status": 200,
+    "final": "https://github.com/Pandaman-8/business-cup-2"
+  },
+  {
+    "url": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43584709152",
+    "status": 200,
+    "final": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43584709152"
+  },
+  {
+    "url": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43584709163",
+    "status": 200,
+    "final": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43584709163"
+  },
+  {
+    "url": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43588189983",
+    "status": 200,
+    "final": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43588189983"
+  },
+  {
+    "url": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43588190026",
+    "status": 200,
+    "final": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43588190026"
+  },
+  {
+    "url": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43590727204",
+    "status": 200,
+    "final": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43590727204"
+  },
+  {
+    "url": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43590810478",
+    "status": 200,
+    "final": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43590810478"
+  },
+  {
+    "url": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43590810480",
+    "status": 200,
+    "final": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43590810480"
+  },
+  {
+    "url": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43593903432",
+    "status": 200,
+    "final": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43593903432"
+  },
+  {
+    "url": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43593990322",
+    "status": 200,
+    "final": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43593990322"
+  },
+  {
+    "url": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43593990387",
+    "status": 200,
+    "final": "https://github.com/Pandaman-8/business-cup-2/actions/runs/43593990387"
+  },
+  {
+    "url": "https://indeedflex.com/career-hub/tools/childcare-calculator",
+    "status": 200,
+    "final": "https://indeedflex.com/career-hub/tools/childcare-calculator"
+  },
+  {
+    "url": "https://indeedflex.com/career-hub/tools/shift-planner/for-parents",
+    "status": 200,
+    "final": "https://indeedflex.com/career-hub/tools/shift-planner/for-parents"
+  },
+  {
+    "url": "https://linear.app/",
+    "status": 200,
+    "final": "https://linear.app/"
+  },
+  {
+    "url": "https://linear.app/changelog/2026-03-12-ui-refresh",
+    "status": 200,
+    "final": "https://linear.app/changelog/2026-03-12-ui-refresh"
+  },
+  {
+    "url": "https://pandaman-8.github.io/business-cup-2/",
+    "status": 200,
+    "final": "https://pandaman-8.github.io/business-cup-2/"
+  },
+  {
+    "url": "https://stripe.com/payments/checkout",
+    "status": 200,
+    "final": "https://stripe.com/payments/checkout"
+  },
+  {
+    "url": "https://tailwindcss.com/docs/installation/using-vite",
+    "status": 200,
+    "final": "https://tailwindcss.com/docs/installation/using-vite"
+  },
+  {
+    "url": "https://tally.so/help/conditional-form-logic",
+    "status": 200,
+    "final": "https://tally.so/help/conditional-form-logic"
+  },
+  {
+    "url": "https://vite.dev/guide/",
+    "status": 200,
+    "final": "https://vite.dev/guide/"
+  },
+  {
+    "url": "https://wise.com/",
+    "status": 200,
+    "final": "https://wise.com/"
+  },
+  {
+    "url": "https://www.care.com/child-care",
+    "status": 403
+  },
+  {
+    "url": "https://www.nngroup.com/articles/4-principles-reduce-cognitive-load/",
+    "status": 200,
+    "final": "https://www.nngroup.com/articles/4-principles-reduce-cognitive-load/"
+  },
+  {
+    "url": "https://www.nngroup.com/articles/progressive-disclosure/",
+    "status": 200,
+    "final": "https://www.nngroup.com/articles/progressive-disclosure/"
+  }
+]

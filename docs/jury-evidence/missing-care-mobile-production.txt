@@ -1,0 +1,81 @@
+- link "Skip to content":
+  - /url: "#main"
+- banner:
+  - button "ShiftMargin home":
+    - text: ShiftMargin
+    - generic: .
+  - button "Advanced Planning"
+- main:
+  - navigation "Comparison steps":
+    - list:
+      - button "1 Your shifts":
+        - generic: "1"
+        - generic: Your shifts
+      - button "2 Childcare":
+        - generic: "2"
+        - generic: Childcare
+      - button "3 Your costs":
+        - generic: "3"
+        - generic: Your costs
+      - button "4 Your result":
+        - generic: "4"
+        - generic: Your result
+  - generic: Quick Compare
+  - text: Illustrative example
+  - button "Reset"
+  - paragraph: Plus demo active · No payment processed
+  - paragraph: Fictional shifts, real calculation. Edit any input to see what changes.
+  - region "Your recommendation":
+    - status:
+      - generic: "Saturday shift. Estimated additional money kept: $23.20."
+    - paragraph: Recommended plan
+    - heading "Saturday shift" [level=1]
+    - paragraph:
+      - text: "Your limit: up to 1 extra shift"
+      - button "Change limit"
+    - paragraph: Estimated additional money kept
+    - strong: $23.20
+    - paragraph: Compared with taking no extra shifts
+    - paragraph:
+      - strong: $23.20 more
+      - text: than No extra shifts.
+    - heading "Why this works for you" [level=2]
+    - paragraph: After childcare, travel and estimated withholding, this plan leaves you the most money.
+    - paragraph: ✓ Work and commute are covered by your entered care.
+    - generic "Where the money goes $224.00 before costs":
+      - text: Where the money goes
+      - generic: $224.00 before costs
+    - heading "Compare your options" [level=2]
+    - button "Edit shifts"
+    - paragraph: Up to 1 extra shift. Only covered plans are ranked.
+    - strong: Saturday shift
+    - generic: Recommended
+    - strong: $23.20
+    - strong: No extra shifts
+    - generic: Childcare $0.00 · travel $0.00
+    - strong: $0.00
+    - heading "What needs to change?" [level=2]
+    - article:
+      - heading "Sunday shift" [level=3]
+      - paragraph: This shift needs more childcare coverage.
+      - paragraph:
+        - strong: "Care missing:"
+        - text: Sun, Nov 22, 9:00 AM – Sun, Nov 22, 3:00 PM
+    - button "Update childcare"
+    - generic "Care for the recommended plan Review hours":
+      - text: Care for the recommended plan
+      - generic: Review hours
+    - generic "Assumptions behind this estimate"
+    - generic "What if my plans change?"
+  - button "Edit my week"
+  - button "Save this week"
+  - button "Save another plan"
+  - button "Plan library"
+  - button "Plan next week Copy care settings and add new shifts":
+    - text: Plan next week →
+    - generic: Copy care settings and add new shifts
+  - generic "Saved week & privacy"
+- contentinfo:
+  - generic: ShiftMargin · Earn more. Keep more.
+  - button "Free & Plus"
+  - generic: Estimates, not guarantees. Confirm care directly.
