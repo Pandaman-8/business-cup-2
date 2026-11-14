@@ -1,17 +1,212 @@
-import type { Issue, PlanInput, ShiftOffer } from '../domain/types';
-import { Field, MoneyField, NumberField } from './Fields';
-import { money, payForMinutes } from '../domain/money';
-import { localMillis } from '../domain/time';
-export default function ShiftOffersForm({ plan, change, issues }: { plan: PlanInput; change: (p: PlanInput) => void; issues: Issue[] }) {
-  const patch = (id: string, value: Partial<ShiftOffer>) => change({ ...plan, offers: plan.offers.map(s => s.id === id ? { ...s, ...value } : s) });
-  return <section className="panel" aria-labelledby="offers-heading"><div className="section-heading"><span className="step">02</span><div><h2 id="offers-heading">Your extra shift offers</h2><p>Add the shifts you could choose to take.</p></div><span className="badge">{plan.offers.length} / 10</span></div>
-    <div className="grid-two limits"><NumberField label="Maximum extra shifts" min="0" max="10" step="1" value={plan.maxAdditionalShifts} onChange={maxAdditionalShifts => change({ ...plan, maxAdditionalShifts })} /><Field label="Maximum work hours (optional)" type="number" min="0" max="168" step="0.25" placeholder="No limit" value={plan.maxAdditionalWorkMinutes === null ? '' : plan.maxAdditionalWorkMinutes / 60} onChange={e => change({ ...plan, maxAdditionalWorkMinutes: e.target.value === '' ? null : Number(e.target.value) * 60 })} /></div>
-    {plan.offers.length === 0 && <div className="empty-state small"><span className="empty-symbol">+</span><h3>Your week starts here</h3><p>Add an optional shift and the care available for that time.</p></div>}
-    {plan.offers.map((s, i) => { const errors = issues.filter(x => x.path.startsWith(`offers.${i}.`)); const duration = (localMillis(s.work.end) - localMillis(s.work.start)) / 60000; return <article className="shift-card" key={s.id} aria-label={`Offer ${i + 1}`}><div className="shift-top"><span className="eyebrow">OFFER {String(i + 1).padStart(2, '0')}</span><button className="text-button muted" type="button" onClick={() => change({ ...plan, offers: plan.offers.filter(x => x.id !== s.id) })} aria-label={`Remove ${s.title}`}>Remove</button></div><Field label={`Shift ${i + 1} name`} value={s.title} maxLength={80} onChange={e => patch(s.id, { title: e.target.value })} /><div className="grid-two"><Field label={`Shift ${i + 1} start`} type="datetime-local" step="900" value={s.work.start} onChange={e => patch(s.id, { work: { ...s.work, start: e.target.value } })} /><Field label={`Shift ${i + 1} end`} type="datetime-local" step="900" value={s.work.end} onChange={e => patch(s.id, { work: { ...s.work, end: e.target.value } })} /><MoneyField label={`Shift ${i + 1} pay ($/hour)`} value={s.hourlyPayCents} onChange={hourlyPayCents => patch(s.id, { hourlyPayCents })} /><MoneyField label={`Shift ${i + 1} travel cost ($)`} value={s.travelCostCents} onChange={travelCostCents => patch(s.id, { travelCostCents })} /></div>
-      <details><summary>Commute time <span>{s.commuteBeforeMinutes + s.commuteAfterMinutes} min total</span></summary><div className="grid-two"><NumberField label={`Shift ${i + 1} commute before (minutes)`} min="0" step="15" value={s.commuteBeforeMinutes} onChange={commuteBeforeMinutes => patch(s.id, { commuteBeforeMinutes })} /><NumberField label={`Shift ${i + 1} commute after (minutes)`} min="0" step="15" value={s.commuteAfterMinutes} onChange={commuteAfterMinutes => patch(s.id, { commuteAfterMinutes })} /></div><p className="hint">Care must also cover travel time before and after work.</p></details>
-      {Number.isFinite(duration) && duration > 0 && Number.isFinite(s.hourlyPayCents) && s.hourlyPayCents >= 0 && <div className="gross-preview"><span>{duration / 60} work hours</span><span>{money(payForMinutes(s.hourlyPayCents, duration))} <small>before costs</small></span></div>}
-      {errors.map(x => <p className="error" key={x.path}>{x.message}</p>)}
-    </article>; })}
-    <button className="add-shift" type="button" disabled={plan.offers.length >= 10} onClick={() => change({ ...plan, offers: [...plan.offers, { id: crypto.randomUUID(), title: `Extra shift ${plan.offers.length + 1}`, work: { start: `${plan.weekStart}T09:00`, end: `${plan.weekStart}T17:00` }, hourlyPayCents: 2000, travelCostCents: 0, commuteBeforeMinutes: 0, commuteAfterMinutes: 0 }] })}>+ Add a shift offer</button>
-  </section>;
+import type { Issue, PlanInput, ShiftOffer } from "../domain/types";
+import { Field, MoneyField, NumberField } from "./Fields";
+import { money, payForMinutes } from "../domain/money";
+import { localMillis } from "../domain/time";
+export default function ShiftOffersForm({
+  plan,
+  change,
+  issues,
+}: {
+  plan: PlanInput;
+  change: (p: PlanInput) => void;
+  issues: Issue[];
+}) {
+  const patch = (id: string, value: Partial<ShiftOffer>) =>
+    change({
+      ...plan,
+      offers: plan.offers.map((s) => (s.id === id ? { ...s, ...value } : s)),
+    });
+  return (
+    <section className="panel" aria-labelledby="offers-heading">
+      <div className="section-heading">
+        <span className="step">02</span>
+        <div>
+          <h2 id="offers-heading">Your extra shift offers</h2>
+          <p>Add the shifts you could choose to take.</p>
+        </div>
+        <span className="badge">{plan.offers.length} / 10</span>
+      </div>
+      <div className="grid-two limits">
+        <NumberField
+          label="Maximum extra shifts"
+          min="0"
+          max="10"
+          step="1"
+          value={plan.maxAdditionalShifts}
+          onChange={(maxAdditionalShifts) =>
+            change({ ...plan, maxAdditionalShifts })
+          }
+        />
+        <Field
+          label="Maximum work hours (optional)"
+          type="number"
+          min="0"
+          max="168"
+          step="0.25"
+          placeholder="No limit"
+          value={
+            plan.maxAdditionalWorkMinutes === null
+              ? ""
+              : plan.maxAdditionalWorkMinutes / 60
+          }
+          onChange={(e) =>
+            change({
+              ...plan,
+              maxAdditionalWorkMinutes:
+                e.target.value === "" ? null : Number(e.target.value) * 60,
+            })
+          }
+        />
+      </div>
+      {plan.offers.length === 0 && (
+        <div className="empty-state small">
+          <span className="empty-symbol">+</span>
+          <h3>Your week starts here</h3>
+          <p>Add an optional shift and the care available for that time.</p>
+        </div>
+      )}
+      {plan.offers.map((s, i) => {
+        const errors = issues.filter((x) => x.path.startsWith(`offers.${i}.`));
+        const duration =
+          (localMillis(s.work.end) - localMillis(s.work.start)) / 60000;
+        return (
+          <article
+            className="shift-card"
+            key={s.id}
+            aria-label={`Offer ${i + 1}`}
+          >
+            <div className="shift-top">
+              <span className="eyebrow">
+                OFFER {String(i + 1).padStart(2, "0")}
+              </span>
+              <button
+                className="text-button muted"
+                type="button"
+                onClick={() =>
+                  change({
+                    ...plan,
+                    offers: plan.offers.filter((x) => x.id !== s.id),
+                  })
+                }
+                aria-label={`Remove ${s.title}`}
+              >
+                Remove
+              </button>
+            </div>
+            <Field
+              label={`Shift ${i + 1} name`}
+              value={s.title}
+              maxLength={80}
+              onChange={(e) => patch(s.id, { title: e.target.value })}
+            />
+            <div className="grid-two">
+              <Field
+                label={`Shift ${i + 1} start`}
+                type="datetime-local"
+                step="900"
+                value={s.work.start}
+                onChange={(e) =>
+                  patch(s.id, { work: { ...s.work, start: e.target.value } })
+                }
+              />
+              <Field
+                label={`Shift ${i + 1} end`}
+                type="datetime-local"
+                step="900"
+                value={s.work.end}
+                onChange={(e) =>
+                  patch(s.id, { work: { ...s.work, end: e.target.value } })
+                }
+              />
+              <MoneyField
+                label={`Shift ${i + 1} pay ($/hour)`}
+                value={s.hourlyPayCents}
+                onChange={(hourlyPayCents) => patch(s.id, { hourlyPayCents })}
+              />
+              <MoneyField
+                label={`Shift ${i + 1} travel cost ($)`}
+                value={s.travelCostCents}
+                onChange={(travelCostCents) => patch(s.id, { travelCostCents })}
+              />
+            </div>
+            <details>
+              <summary>
+                Commute time{" "}
+                <span>
+                  {s.commuteBeforeMinutes + s.commuteAfterMinutes} min total
+                </span>
+              </summary>
+              <div className="grid-two">
+                <NumberField
+                  label={`Shift ${i + 1} commute before (minutes)`}
+                  min="0"
+                  step="15"
+                  value={s.commuteBeforeMinutes}
+                  onChange={(commuteBeforeMinutes) =>
+                    patch(s.id, { commuteBeforeMinutes })
+                  }
+                />
+                <NumberField
+                  label={`Shift ${i + 1} commute after (minutes)`}
+                  min="0"
+                  step="15"
+                  value={s.commuteAfterMinutes}
+                  onChange={(commuteAfterMinutes) =>
+                    patch(s.id, { commuteAfterMinutes })
+                  }
+                />
+              </div>
+              <p className="hint">
+                Care must also cover travel time before and after work.
+              </p>
+            </details>
+            {Number.isFinite(duration) &&
+              duration > 0 &&
+              Number.isFinite(s.hourlyPayCents) &&
+              s.hourlyPayCents >= 0 && (
+                <div className="gross-preview">
+                  <span>{duration / 60} work hours</span>
+                  <span>
+                    {money(payForMinutes(s.hourlyPayCents, duration))}{" "}
+                    <small>before costs</small>
+                  </span>
+                </div>
+              )}
+            {errors.map((x) => (
+              <p className="error" key={x.path}>
+                {x.message}
+              </p>
+            ))}
+          </article>
+        );
+      })}
+      <button
+        className="add-shift"
+        type="button"
+        disabled={plan.offers.length >= 10}
+        onClick={() =>
+          change({
+            ...plan,
+            offers: [
+              ...plan.offers,
+              {
+                id: crypto.randomUUID(),
+                title: `Extra shift ${plan.offers.length + 1}`,
+                work: {
+                  start: `${plan.weekStart}T09:00`,
+                  end: `${plan.weekStart}T17:00`,
+                },
+                hourlyPayCents: 2000,
+                travelCostCents: 0,
+                commuteBeforeMinutes: 0,
+                commuteAfterMinutes: 0,
+              },
+            ],
+          })
+        }
+      >
+        + Add a shift offer
+      </button>
+    </section>
+  );
 }

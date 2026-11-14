@@ -9,3 +9,7 @@ React owns input state and presentation. `domain/validation.ts` accepts unknown 
 All money calculations use bounded integers; decimal currency strings are parsed once with digit arithmetic. Shift/visit rounding uses integer numerator division. Withholding uses integer basis points. No floating-dollar accumulation.
 
 Browser-only deployment, no secrets, no external request needed for calculation, no automatic persistence. Meaningful unit tests include a separate exhaustive visit-set oracle, integration browser smoke tests and production verification. Build artifacts are static; CSP and hosting headers can restrict content and connections.
+
+## Runtime and exact pruning
+
+The browser sends validated plan snapshots to a module Web Worker and terminates obsolete workers on edits. The current result is displayed only when it belongs to the current input object. Two DP optimizations preserve exactness: stop considering longer visits when their own nonnegative cost already exceeds the best complete solution, and skip starts with enough leading non-required slots that trimming a slot preserves the minimum length. Neither is a heuristic.

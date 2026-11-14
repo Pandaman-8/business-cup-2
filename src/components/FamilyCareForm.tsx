@@ -1,22 +1,197 @@
-import type { Issue, PlanInput } from '../domain/types';
-import { ZONES } from '../domain/time';
-import { Field, MoneyField, NumberField, Windows } from './Fields';
-const zoneLabels = ['Eastern', 'Central', 'Mountain', 'Pacific', 'Alaska', 'Arizona', 'Hawaii'];
-export default function FamilyCareForm({ plan, change, issues }: { plan: PlanInput; change: (p: PlanInput) => void; issues: Issue[] }) {
+import type { Issue, PlanInput } from "../domain/types";
+import { ZONES } from "../domain/time";
+import { Field, MoneyField, NumberField, Windows } from "./Fields";
+const zoneLabels = [
+  "Eastern",
+  "Central",
+  "Mountain",
+  "Pacific",
+  "Alaska",
+  "Arizona",
+  "Hawaii",
+];
+export default function FamilyCareForm({
+  plan,
+  change,
+  issues,
+}: {
+  plan: PlanInput;
+  change: (p: PlanInput) => void;
+  issues: Issue[];
+}) {
   const patch = (value: Partial<PlanInput>) => change({ ...plan, ...value });
-  const error = (path: string) => issues.find(i => i.path === path)?.message;
-  return <section className="panel" aria-labelledby="family-heading"><div className="section-heading"><span className="step">01</span><div><h2 id="family-heading">Your family, your week</h2><p>A little context makes a better plan.</p></div></div>
-    <div className="grid-two">
-      <Field label="Week starting Monday" type="date" value={plan.weekStart} issue={error('weekStart')} onChange={e => patch({ weekStart: e.target.value })} />
-      <label className="field"><span>Time zone</span><select value={plan.timeZone} onChange={e => patch({ timeZone: e.target.value })}>{ZONES.map((z, i) => <option key={z} value={z}>{zoneLabels[i]} · {z.replace('America/', '').replace('Pacific/', '').replaceAll('_', ' ')}</option>)}</select></label>
-      <label className="field"><span>Household</span><select value={plan.household} onChange={e => patch({ household: e.target.value as PlanInput['household'], partnerAvailable: e.target.value === 'single-parent' ? [] : plan.partnerAvailable })}><option value="two-adults">Two adults</option><option value="single-parent">Single parent</option></select></label>
-      <NumberField label="Estimated withholding (%)" min="0" max="60" step="0.01" value={plan.withholdingPercent} onChange={withholdingPercent => patch({ withholdingPercent })} />
-    </div>
-    <div className="subheading"><h3>Who can cover care?</h3><p>Enter only times when someone is available. Blank times are never assumed covered.</p></div>
-    {plan.household === 'two-adults' && <Windows title="Partner" description="When your partner can look after your child." ranges={plan.partnerAvailable} onChange={partnerAvailable => patch({ partnerAvailable })} week={plan.weekStart} issues={issues} path="partnerAvailable" />}
-    <details className="care-details"><summary>Arranged care & family help <span>{plan.existingCareCoverage.length + plan.unpaidHelperCoverage.length} windows</span></summary><Windows title="Arranged care" description="Care already arranged or paid for. No additional cost." ranges={plan.existingCareCoverage} onChange={existingCareCoverage => patch({ existingCareCoverage })} week={plan.weekStart} issues={issues} path="existingCareCoverage" /><Windows title="Family help" description="Free help from a relative or friend. Confirm with them directly." ranges={plan.unpaidHelperCoverage} onChange={unpaidHelperCoverage => patch({ unpaidHelperCoverage })} week={plan.weekStart} issues={issues} path="unpaidHelperCoverage" /></details>
-    <div className="sitter-toggle"><div><h3>Paid sitter</h3><p>One sitter, with a total rate for your household.</p></div><label className="check"><input type="checkbox" checked={Boolean(plan.paidCare)} onChange={e => patch({ paidCare: e.target.checked ? { availability: [], hourlyCostCents: 1800, minBillableMinutesPerVisit: 120 } : null })} /><span>Include sitter</span></label></div>
-    {plan.paidCare && <div className="sitter-settings"><div className="grid-two"><MoneyField label="Sitter rate ($/hour)" value={plan.paidCare.hourlyCostCents} issue={error('paidCare.hourlyCostCents')} onChange={hourlyCostCents => patch({ paidCare: { ...plan.paidCare!, hourlyCostCents } })} /><NumberField label="Minimum visit (minutes)" min="0" step="15" value={plan.paidCare.minBillableMinutesPerVisit} onChange={minBillableMinutesPerVisit => patch({ paidCare: { ...plan.paidCare!, minBillableMinutesPerVisit } })} /></div><Windows title="Sitter" description="Each paid visit must fit entirely within these times, including the minimum booking." ranges={plan.paidCare.availability} onChange={availability => patch({ paidCare: { ...plan.paidCare!, availability } })} week={plan.weekStart} issues={issues} path="paidCare.availability" /></div>}
-    <p className="footnote">Use 15-minute increments. All times are local to your selected zone. Weeks with a daylight saving clock change are not supported.</p>
-  </section>;
+  const error = (path: string) => issues.find((i) => i.path === path)?.message;
+  return (
+    <section className="panel" aria-labelledby="family-heading">
+      <div className="section-heading">
+        <span className="step">01</span>
+        <div>
+          <h2 id="family-heading">Your family, your week</h2>
+          <p>A little context makes a better plan.</p>
+        </div>
+      </div>
+      <div className="grid-two">
+        <Field
+          label="Week starting Monday"
+          type="date"
+          value={plan.weekStart}
+          issue={error("weekStart")}
+          onChange={(e) => patch({ weekStart: e.target.value })}
+        />
+        <label className="field">
+          <span>Time zone</span>
+          <select
+            value={plan.timeZone}
+            onChange={(e) => patch({ timeZone: e.target.value })}
+          >
+            {ZONES.map((z, i) => (
+              <option key={z} value={z}>
+                {zoneLabels[i]} ·{" "}
+                {z
+                  .replace("America/", "")
+                  .replace("Pacific/", "")
+                  .replaceAll("_", " ")}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span>Household</span>
+          <select
+            value={plan.household}
+            onChange={(e) =>
+              patch({
+                household: e.target.value as PlanInput["household"],
+                partnerAvailable:
+                  e.target.value === "single-parent"
+                    ? []
+                    : plan.partnerAvailable,
+              })
+            }
+          >
+            <option value="two-adults">Two adults</option>
+            <option value="single-parent">Single parent</option>
+          </select>
+        </label>
+        <NumberField
+          label="Estimated withholding (%)"
+          min="0"
+          max="60"
+          step="0.01"
+          value={plan.withholdingPercent}
+          onChange={(withholdingPercent) => patch({ withholdingPercent })}
+        />
+      </div>
+      <div className="subheading">
+        <h3>Who can cover care?</h3>
+        <p>
+          Enter only times when someone is available. Blank times are never
+          assumed covered.
+        </p>
+      </div>
+      {plan.household === "two-adults" && (
+        <Windows
+          title="Partner"
+          description="When your partner can look after your child."
+          ranges={plan.partnerAvailable}
+          onChange={(partnerAvailable) => patch({ partnerAvailable })}
+          week={plan.weekStart}
+          issues={issues}
+          path="partnerAvailable"
+        />
+      )}
+      <details className="care-details">
+        <summary>
+          Arranged care & family help{" "}
+          <span>
+            {plan.existingCareCoverage.length +
+              plan.unpaidHelperCoverage.length}{" "}
+            windows
+          </span>
+        </summary>
+        <Windows
+          title="Arranged care"
+          description="Care already arranged or paid for. No additional cost."
+          ranges={plan.existingCareCoverage}
+          onChange={(existingCareCoverage) => patch({ existingCareCoverage })}
+          week={plan.weekStart}
+          issues={issues}
+          path="existingCareCoverage"
+        />
+        <Windows
+          title="Family help"
+          description="Free help from a relative or friend. Confirm with them directly."
+          ranges={plan.unpaidHelperCoverage}
+          onChange={(unpaidHelperCoverage) => patch({ unpaidHelperCoverage })}
+          week={plan.weekStart}
+          issues={issues}
+          path="unpaidHelperCoverage"
+        />
+      </details>
+      <div className="sitter-toggle">
+        <div>
+          <h3>Paid sitter</h3>
+          <p>One sitter, with a total rate for your household.</p>
+        </div>
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={Boolean(plan.paidCare)}
+            onChange={(e) =>
+              patch({
+                paidCare: e.target.checked
+                  ? {
+                      availability: [],
+                      hourlyCostCents: 1800,
+                      minBillableMinutesPerVisit: 120,
+                    }
+                  : null,
+              })
+            }
+          />
+          <span>Include sitter</span>
+        </label>
+      </div>
+      {plan.paidCare && (
+        <div className="sitter-settings">
+          <div className="grid-two">
+            <MoneyField
+              label="Sitter rate ($/hour)"
+              value={plan.paidCare.hourlyCostCents}
+              issue={error("paidCare.hourlyCostCents")}
+              onChange={(hourlyCostCents) =>
+                patch({ paidCare: { ...plan.paidCare!, hourlyCostCents } })
+              }
+            />
+            <NumberField
+              label="Minimum visit (minutes)"
+              min="0"
+              step="15"
+              value={plan.paidCare.minBillableMinutesPerVisit}
+              onChange={(minBillableMinutesPerVisit) =>
+                patch({
+                  paidCare: { ...plan.paidCare!, minBillableMinutesPerVisit },
+                })
+              }
+            />
+          </div>
+          <Windows
+            title="Sitter"
+            description="Each paid visit must fit entirely within these times, including the minimum booking."
+            ranges={plan.paidCare.availability}
+            onChange={(availability) =>
+              patch({ paidCare: { ...plan.paidCare!, availability } })
+            }
+            week={plan.weekStart}
+            issues={issues}
+            path="paidCare.availability"
+          />
+        </div>
+      )}
+      <p className="footnote">
+        Use 15-minute increments. All times are local to your selected zone.
+        Weeks with a daylight saving clock change are not supported.
+      </p>
+    </section>
+  );
 }
