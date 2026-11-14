@@ -2,7 +2,13 @@ import { describe, it, expect } from "vitest";
 import { demoWeek } from "../data/demoWeek";
 import { optimize } from "../domain/optimizer";
 import { validate } from "../domain/validation";
-import { careForShift, comparison, moveWeek } from "./planAdapter";
+import {
+  careForShift,
+  comparison,
+  moveWeek,
+  relevantRejectedCombination,
+  changedCareNeeds,
+} from "./planAdapter";
 describe("V2 UI adapters preserve the engine contract", () => {
   it("moves every schedule source atomically, without mutating the original", () => {
     const p = demoWeek();
@@ -58,5 +64,48 @@ describe("V2 UI adapters preserve the engine contract", () => {
     p.partnerAvailable = [];
     p.paidCare = null;
     expect(comparison(optimize(p))).toBeNull();
+  });
+});
+
+describe("V2.1 decision explanations", () => {
+  it("explains count, hours and overlap using actual rejected combinations", () => {
+    const p = demoWeek();
+    expect(relevantRejectedCombination(optimize(p))?.reasonCodes).toContain(
+      "SHIFT_LIMIT",
+    );
+    p.maxAdditionalShifts = 2;
+    expect(relevantRejectedCombination(optimize(p))).toBeNull();
+    p.maxAdditionalWorkMinutes = 8 * 60;
+    expect(relevantRejectedCombination(optimize(p))?.reasonCodes).toContain(
+      "HOUR_LIMIT",
+    );
+    p.maxAdditionalWorkMinutes = null;
+    p.offers[0].work = { ...p.offers[1].work };
+    expect(relevantRejectedCombination(optimize(p))?.reasonCodes).toContain(
+      "OVERLAP",
+    );
+  });
+  it("does not imply an uncovered shift works on its own or mutate rejected output", () => {
+    const p = demoWeek();
+    const r = optimize(p);
+    const before = JSON.stringify(r);
+    relevantRejectedCombination(r);
+    expect(JSON.stringify(r)).toBe(before);
+    p.partnerAvailable = [];
+    expect(relevantRejectedCombination(optimize(p))).toBeNull();
+  });
+  it("requests care review only for changed dates, times or commute with existing care", () => {
+    const p = demoWeek();
+    const next = structuredClone(p);
+    next.offers[1].hourlyPayCents += 100;
+    expect(changedCareNeeds(p, next)).toEqual([]);
+    next.offers[1].commuteAfterMinutes = 15;
+    expect(changedCareNeeds(p, next)).toEqual(["sunday"]);
+    next.offers[1].commuteAfterMinutes = 0;
+    next.offers[1].work.end = "2026-11-22T16:00";
+    expect(changedCareNeeds(p, next)).toEqual(["sunday"]);
+    p.partnerAvailable = [];
+    p.paidCare = null;
+    expect(changedCareNeeds(p, next)).toEqual([]);
   });
 });

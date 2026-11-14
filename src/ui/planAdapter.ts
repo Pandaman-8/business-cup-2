@@ -79,3 +79,57 @@ export function comparison(result: OptimizeResult) {
       }
     : null;
 }
+
+// Explain one nearby rejected choice, never put infeasible plans into the ranking.
+export function relevantRejectedCombination(result: OptimizeResult) {
+  const eligible = new Set(
+    result.individual
+      .filter((p) => p.feasible)
+      .flatMap((p) => p.selectedShiftIds),
+  );
+  const selected = result.best.selectedShiftIds;
+  return (
+    result.rejected
+      .filter(
+        (p) =>
+          p.selectedShiftIds.length > 1 &&
+          p.selectedShiftIds.every((id) => eligible.has(id)),
+      )
+      .sort((a, b) => {
+        const shared = (p: typeof a) =>
+          p.selectedShiftIds.filter((id) => selected.includes(id)).length;
+        return (
+          shared(b) - shared(a) ||
+          a.selectedShiftIds.length - b.selectedShiftIds.length ||
+          a.selectedShiftIds
+            .join("|")
+            .localeCompare(b.selectedShiftIds.join("|"))
+        );
+      })[0] ?? null
+  );
+}
+
+export function changedCareNeeds(
+  before: PlanInput,
+  after: PlanInput,
+): string[] {
+  const hasCare =
+    before.partnerAvailable.length +
+      before.unpaidHelperCoverage.length +
+      before.existingCareCoverage.length +
+      (before.paidCare?.availability.length ?? 0) >
+    0;
+  if (!hasCare) return [];
+  return after.offers
+    .filter((s) => {
+      const old = before.offers.find((o) => o.id === s.id);
+      return (
+        old &&
+        (old.work.start !== s.work.start ||
+          old.work.end !== s.work.end ||
+          old.commuteBeforeMinutes !== s.commuteBeforeMinutes ||
+          old.commuteAfterMinutes !== s.commuteAfterMinutes)
+      );
+    })
+    .map((s) => s.id);
+}

@@ -128,10 +128,9 @@ export default function FamilyCareForm({
               key={key}
               aria-label={`${source.title} availability`}
             >
-              <h2>{source.title}: when are they available?</h2>
+              <h2>{source.title}</h2>
               <p className="hint">
-                Only select hours you know are available. Full-shift hours
-                include the commute.
+                Confirm the hours they can cover, including your commute.
               </p>
               <div className="care-presets">
                 {plan.offers.map((s) => {

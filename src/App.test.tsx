@@ -200,3 +200,111 @@ describe("Keyboard navigation", () => {
     expect(focused.some((t) => t.includes("Add a shift"))).toBe(true);
   });
 });
+
+describe("V2.1 visible limits and care review", () => {
+  it("offers one/two/custom limits in Quick Compare and explains rejected combinations", async () => {
+    render(<App />);
+    click("Try an example");
+    await result("$98.40");
+    expect(
+      screen.getByText("Why not Saturday shift + Sunday shift?"),
+    ).toBeTruthy();
+    expect(screen.getByText(/Your limit: up to 1 extra shift/)).toBeTruthy();
+    click("Change limit");
+    expect(
+      screen
+        .getByRole("button", { name: "Just one" })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+    click("Up to two");
+    click("4 Your result");
+    await result("$121.60");
+    expect(
+      screen.queryByText("Why not Saturday shift + Sunday shift?"),
+    ).toBeNull();
+    click("Change limit");
+    click("Custom limit");
+    const active = screen.getByRole("group", {
+      name: "How many extra shifts could you take?",
+    });
+    fireEvent.change(within(active).getByLabelText("Maximum extra shifts"), {
+      target: { value: "0" },
+    });
+    click("4 Your result");
+    await result("$0.00");
+    expect(
+      screen.getByRole("heading", {
+        name: "No shift fits your current limits.",
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: "Update childcare" }),
+    ).toBeNull();
+  });
+  it("keeps literal care hours after time/commute edits and only adds coverage explicitly", async () => {
+    render(<App />);
+    click("Try an example");
+    await result("$98.40");
+    click("1 Your shifts");
+    input("Shift 2 hourly pay ($)", "23.00");
+    expect(
+      screen.queryByText("Work hours changed. Recheck childcare."),
+    ).toBeNull();
+    input("Shift 2 end time", "16:00");
+    expect(
+      screen.getByText("Work hours changed. Recheck childcare."),
+    ).toBeTruthy();
+    click("4 Your result");
+    await result("$23.20");
+    click("Review childcare");
+    const partner = screen.getByRole("region", {
+      name: "My partner availability",
+    });
+    expect(
+      (
+        within(partner).getByLabelText(
+          "My partner window 1 end time",
+        ) as HTMLInputElement
+      ).value,
+    ).toBe("15:00");
+    const full = within(partner).getByRole("checkbox", {
+      name: /Available for Sunday shift/,
+    });
+    expect((full as HTMLInputElement).checked).toBe(false);
+    click("I’ve reviewed the care hours");
+    click("4 Your result");
+    await result("$23.20"); // Acknowledgment must not extend any care hours.
+    click("2 Childcare");
+    fireEvent.click(full);
+    click("4 Your result");
+    await result("$116.80");
+    click("1 Your shifts");
+    click("Advanced Planning");
+    input("Shift 2 commute after (minutes)", "15");
+    expect(
+      screen.getByText("Work hours changed. Recheck childcare."),
+    ).toBeTruthy();
+    click("Quick Compare");
+    click("4 Your result");
+    await result("$23.20");
+    click("Reset");
+    await result("$98.40");
+    expect(
+      screen.queryByText("Work hours changed. Recheck childcare."),
+    ).toBeNull();
+  });
+  it("reuses next-week settings without retaining offers or implying care was booked", async () => {
+    render(<App />);
+    click("Try an example");
+    await result("$98.40");
+    click("Plan next week Copy care settings and add new shifts");
+    expect(screen.getByRole("status").textContent).toContain(
+      "Reconfirm every copied care window",
+    );
+    expect(screen.queryByRole("article", { name: "Shift 1" })).toBeNull();
+    click("+ Add a shift");
+    expect(
+      (screen.getByLabelText("Shift 1 day") as HTMLSelectElement).value,
+    ).toBe("2026-11-28");
+  });
+});

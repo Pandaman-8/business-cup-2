@@ -13,6 +13,7 @@ import FamilyCareForm from "./components/FamilyCareForm";
 import ShiftOffersForm from "./components/ShiftOffersForm";
 import CostsForm from "./components/CostsForm";
 import ResultsPanel from "./components/ResultsPanel";
+import { changedCareNeeds } from "./ui/planAdapter";
 import WeekSettings from "./components/WeekSettings";
 const steps = ["Your shifts", "Childcare", "Your costs", "Your result"];
 function issueStep(i: Issue) {
@@ -58,6 +59,7 @@ export default function App() {
   } | null>(null);
   const [note, setNote] = useState(""),
     [navigationError, setNavigationError] = useState("");
+  const [careReview, setCareReview] = useState<string[]>([]);
   const main = useRef<HTMLElement>(null);
   const issues = validate(plan),
     valid = issues.length === 0;
@@ -129,6 +131,7 @@ export default function App() {
   function replace(p: PlanInput, message = "") {
     setPlan(p);
     setCalculation(null);
+    setCareReview([]);
     setFormKey((k) => k + 1);
     setNote(message);
     setNavigationError("");
@@ -142,6 +145,12 @@ export default function App() {
     setStep(isSample ? 4 : 1);
   }
   function change(p: PlanInput) {
+    const changed = changedCareNeeds(plan, p);
+    setCareReview((old) =>
+      [...new Set([...old, ...changed])].filter((id) =>
+        p.offers.some((s) => s.id === id),
+      ),
+    );
     setPlan(p);
     setNavigationError("");
     setNote("");
@@ -229,43 +238,58 @@ export default function App() {
         id="main"
         ref={main}
         tabIndex={-1}
-        className={step === 0 ? "entry" : "workspace"}
+        className={
+          step === 0
+            ? "entry"
+            : `workspace ${step === 4 ? "result-workspace" : ""}`
+        }
       >
         <section className="entry-content" hidden={step !== 0}>
           <span className="entry-intro">
             A little clarity before you say yes.
           </span>
-          <h1>
-            Find the shift that
-            <br />
-            <em>leaves you more.</em>
-          </h1>
-          <p className="entry-description">
-            Compare extra shifts after childcare and travel costs.
-          </p>
-          <div className="entry-actions">
-            <button className="primary-button" onClick={() => start(false)}>
-              Compare my shifts <span aria-hidden="true">→</span>
-            </button>
-            <button className="secondary-button" onClick={() => start(true)}>
-              Try an example
-            </button>
+          <div className="entry-main">
+            <h1>
+              Find the shift that
+              <br />
+              <em>leaves you more.</em>
+            </h1>
+            <p className="entry-description">
+              Compare extra shifts after childcare and travel costs.
+            </p>
+            <div className="entry-actions">
+              <button className="primary-button" onClick={() => start(false)}>
+                Compare my shifts <span aria-hidden="true">→</span>
+              </button>
+              <button className="secondary-button" onClick={() => start(true)}>
+                Try an example
+              </button>
+            </div>
+            <p className="privacy-line">
+              No sign-up required <span>·</span> Private calculation{" "}
+              <span>·</span> Estimated results
+            </p>
           </div>
-          <p className="privacy-line">
-            No sign-up required <span>·</span> Private calculation{" "}
-            <span>·</span> Estimated results
-          </p>
           <div className="entry-how">
             <p>
-              <strong>1. Add your shifts</strong>
+              <span className="how-number" aria-hidden="true">
+                01
+              </span>
+              <strong>Add your shifts</strong>
               <span>The hours and pay you’re considering.</span>
             </p>
             <p>
-              <strong>2. Confirm care</strong>
+              <span className="how-number" aria-hidden="true">
+                02
+              </span>
+              <strong>Confirm care</strong>
               <span>Who’s available while you work.</span>
             </p>
             <p>
-              <strong>3. See what stays</strong>
+              <span className="how-number" aria-hidden="true">
+                03
+              </span>
+              <strong>See what stays</strong>
               <span>The money left after added costs.</span>
             </p>
           </div>
@@ -328,6 +352,31 @@ export default function App() {
               {navigationError}
             </p>
           )}
+          {careReview.length > 0 && (
+            <aside className="notice care-review" role="status">
+              <strong>Work hours changed. Recheck childcare.</strong>
+              <p>
+                {plan.offers
+                  .filter((s) => careReview.includes(s.id))
+                  .map((s) => s.title)
+                  .join(", ")}
+                : saved care hours have not changed. Check they cover the new
+                work and commute times.
+              </p>
+              {step === 2 ? (
+                <button
+                  className="text-button"
+                  onClick={() => setCareReview([])}
+                >
+                  I’ve reviewed the care hours
+                </button>
+              ) : (
+                <button className="text-button" onClick={() => setStep(2)}>
+                  Review childcare
+                </button>
+              )}
+            </aside>
+          )}
           <div key={formKey}>
             <div hidden={step !== 1} data-active={step === 1}>
               <WeekSettings
@@ -356,6 +405,7 @@ export default function App() {
             </div>
             <div hidden={step !== 4} data-active={step === 4}>
               <ResultsPanel
+                careNeedsReview={careReview.length > 0}
                 result={result}
                 plan={plan}
                 pending={pending}
@@ -414,7 +464,8 @@ export default function App() {
             <summary>Saved week & privacy</summary>
             <p className="hint">
               Save one week on this browser only. Nothing is saved automatically
-              or sent to a server. No cloud sync.
+              or sent to a server. Reloading closes an unsaved plan. No cloud
+              sync.
             </p>
             <div className="actions">
               <button className="text-button" onClick={restore}>

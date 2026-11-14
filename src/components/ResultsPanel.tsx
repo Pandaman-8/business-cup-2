@@ -6,7 +6,7 @@ import type {
 } from "../domain/types";
 import { money } from "../domain/money";
 import { rangeLabel } from "../domain/time";
-import { comparison } from "../ui/planAdapter";
+import { comparison, relevantRejectedCombination } from "../ui/planAdapter";
 import { validate } from "../domain/validation";
 import { Limits } from "./ShiftOffersForm";
 const reasons: Record<ReasonCode, string> = {
@@ -44,6 +44,7 @@ export function CostBreakdown({ p, plan }: { p: PlanResult; plan: PlanInput }) {
 }
 export default function ResultsPanel({
   result,
+  careNeedsReview,
   plan,
   pending,
   error,
@@ -52,6 +53,7 @@ export default function ResultsPanel({
   change,
 }: {
   result: OptimizeResult | null;
+  careNeedsReview: boolean;
   plan: PlanInput;
   pending: boolean;
   error: string;
@@ -61,7 +63,16 @@ export default function ResultsPanel({
 }) {
   const best = result?.best;
   const compared = result ? comparison(result) : null;
+  const rejected = result ? relevantRejectedCombination(result) : null;
   const hasWork = !!best?.selectedShiftIds.length;
+  const blockedByLimits =
+    !!result?.individual.length &&
+    !result.hasCoveredWork &&
+    result.individual.every(
+      (p) =>
+        p.reasonCodes.includes("SHIFT_LIMIT") ||
+        p.reasonCodes.includes("HOUR_LIMIT"),
+    );
   return (
     <section aria-label="Your recommendation">
       <div role="status" aria-live="polite" aria-atomic="true">
@@ -99,68 +110,90 @@ export default function ResultsPanel({
                 ? "Recommended plan"
                 : result.hasCoveredWork
                   ? "Keeping your time is the better option"
-                  : "Your care plan needs a little more work"}
+                  : blockedByLimits
+                    ? "Your work limits rule out these shifts"
+                    : "Your care plan needs a little more work"}
             </p>
             <h1>
               {hasWork
                 ? titles(best, plan)
                 : result.hasCoveredWork
                   ? "Skip the extra shifts this week."
-                  : "No covered shift yet."}
+                  : blockedByLimits
+                    ? "No shift fits your current limits."
+                    : "No covered shift yet."}
             </h1>
           </header>
-          <div className="result-summary">
-            <p>Estimated additional money kept</p>
-            <strong className="net-number" data-testid="net-gain">
-              {money(best.netGainCents)}
-            </strong>
-            <p className="baseline">Compared with taking no extra shifts</p>
-            {compared && hasWork && (
-              <p className="decision-line">
-                {compared.difference > 0 ? (
-                  <>
-                    <strong>{money(compared.difference)} more</strong> than{" "}
-                    {titles(compared.alternative, plan)}.
-                  </>
-                ) : (
-                  <>
-                    Same money as {titles(compared.alternative, plan)}; we
-                    prefer fewer shifts, then lower care costs when tied.
-                  </>
-                )}
-              </p>
-            )}
-          </div>
-          <div className="result-reason">
-            {hasWork ? (
-              <>
-                <h2>Why this works for you</h2>
+          <p className="result-limit">
+            Your limit: up to {plan.maxAdditionalShifts} extra{" "}
+            {plan.maxAdditionalShifts === 1 ? "shift" : "shifts"}
+            {plan.maxAdditionalWorkMinutes !== null
+              ? ` · ${plan.maxAdditionalWorkMinutes / 60} work hours`
+              : ""}
+            <button className="text-button" onClick={() => edit(1)}>
+              Change limit
+            </button>
+          </p>
+          <div className="result-focus">
+            <div className="result-summary">
+              <p>Estimated additional money kept</p>
+              <strong className="net-number" data-testid="net-gain">
+                {money(best.netGainCents)}
+              </strong>
+              <p className="baseline">Compared with taking no extra shifts</p>
+              {compared && hasWork && (
+                <p className="decision-line">
+                  {compared.difference > 0 ? (
+                    <>
+                      <strong>{money(compared.difference)} more</strong> than{" "}
+                      {titles(compared.alternative, plan)}.
+                    </>
+                  ) : (
+                    <>
+                      Same money as {titles(compared.alternative, plan)}; we
+                      prefer fewer shifts, then lower care costs when tied.
+                    </>
+                  )}
+                </p>
+              )}
+            </div>
+            <div className="result-reason">
+              {hasWork ? (
+                <>
+                  <h2>Why this works for you</h2>
+                  <p>
+                    {compared &&
+                    best.grossCents < compared.alternative.grossCents &&
+                    best.addedCareCents === 0 &&
+                    compared.alternative.addedCareCents > 0
+                      ? "This plan pays less before costs, but you don’t need paid childcare."
+                      : best.selectedShiftIds.length > 1
+                        ? "Taking these shifts together leaves you the most money within your work limits."
+                        : best.addedCareCents === 0
+                          ? "Your entered care covers this shift without added childcare costs."
+                          : "After childcare, travel and estimated withholding, this plan leaves you the most money."}
+                  </p>
+                  <p
+                    className={`coverage-status ${careNeedsReview ? "review-pending" : ""}`}
+                  >
+                    <span aria-hidden="true">
+                      {careNeedsReview ? "↻" : "✓"}
+                    </span>{" "}
+                    {careNeedsReview
+                      ? "Recheck entered care after your work-hour changes."
+                      : "Work and commute are covered by your entered care."}
+                  </p>
+                </>
+              ) : (
                 <p>
-                  {compared &&
-                  best.grossCents < compared.alternative.grossCents &&
-                  best.addedCareCents === 0 &&
-                  compared.alternative.addedCareCents > 0
-                    ? "This plan pays less before costs, but you don’t need paid childcare."
-                    : best.selectedShiftIds.length > 1
-                      ? "Taking these shifts together leaves you the most money within your work limits."
-                      : best.addedCareCents === 0
-                        ? "Your entered care covers this shift without added childcare costs."
-                        : "After childcare, travel and estimated withholding, this plan leaves you the most money."}
+                  {result.hasCoveredWork
+                    ? "None of the covered options leaves you with a positive gain under these assumptions."
+                    : plan.offers.length
+                      ? "We can’t recommend an extra shift until its care and work limits are covered. See what needs to change below."
+                      : "Add a shift to start comparing your options."}
                 </p>
-                <p className="coverage-status">
-                  <span aria-hidden="true">✓</span> Work and commute are covered
-                  by your entered care.
-                </p>
-              </>
-            ) : (
-              <p>
-                {result.hasCoveredWork
-                  ? "None of the covered options leaves you with a positive gain under these assumptions."
-                  : plan.offers.length
-                    ? "We can’t recommend an extra shift until its care and work limits are covered. See what needs to change below."
-                    : "Add a shift to start comparing your options."}
-              </p>
-            )}
+              )}
+            </div>
           </div>
           <details className="section-disclosure">
             <summary>
@@ -203,6 +236,18 @@ export default function ResultsPanel({
               ))}
             </div>
           </section>
+          {rejected && (
+            <aside
+              className="combination-note"
+              aria-label="Why these shifts cannot be combined"
+            >
+              <h3>Why not {titles(rejected, plan)}?</h3>
+              <p>
+                Each shift works on its own. Together:{" "}
+                {rejected.reasonCodes.map((code) => reasons[code]).join(" ")}
+              </p>
+            </aside>
+          )}
           {result.individual.some((p) => !p.feasible) && (
             <section className="missing-care">
               <h2>What needs to change?</h2>
@@ -221,9 +266,24 @@ export default function ResultsPanel({
                     ))}
                   </article>
                 ))}
-              <button className="secondary-button" onClick={() => edit(2)}>
-                Update childcare
-              </button>
+              {result.individual.some(
+                (p) =>
+                  p.reasonCodes.includes("MISSING_CARE") ||
+                  p.reasonCodes.includes("SITTER_MINIMUM"),
+              ) && (
+                <button className="secondary-button" onClick={() => edit(2)}>
+                  Update childcare
+                </button>
+              )}
+              {result.individual.some(
+                (p) =>
+                  p.reasonCodes.includes("SHIFT_LIMIT") ||
+                  p.reasonCodes.includes("HOUR_LIMIT"),
+              ) && (
+                <button className="text-button" onClick={() => edit(1)}>
+                  Review work limits
+                </button>
+              )}
             </section>
           )}
           <details className="section-disclosure">

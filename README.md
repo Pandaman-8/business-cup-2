@@ -27,9 +27,9 @@ Choose **Try an example**. With one extra shift allowed, Sunday leaves **$98.40*
 
 ## Quick Compare and Advanced Planning
 
-Start with your shifts, confirm specific childcare hours, then enter relevant costs. The result explains the recommended plan and compares it with a feasible alternative. **Advanced Planning** reveals commute buffers, extended availability and work limits on the same focused screens. Switching modes keeps your data.
+Start with your shifts, choose a visible one/two/custom shift limit, confirm specific childcare hours, then enter relevant costs. The result explains the recommended plan and compares it with a feasible alternative. **Advanced Planning** reveals commute buffers, extended availability and work limits on the same focused screens. Switching modes keeps your data.
 
-Changing the week offers an explicit move-or-clear choice, validates the full candidate, and applies it atomically. Care is never inferred from choosing a provider.
+Changing the week offers an explicit move-or-clear choice, validates the full candidate, and applies it atomically. Care is never inferred from choosing a provider. Editing work or commute times asks you to review existing care; acknowledging the reminder does not extend availability. Results explain one relevant rejected combination separately from the feasible ranking.
 
 ## How it works
 
@@ -43,7 +43,7 @@ Dollar input is converted once to integer cents. Shift earnings and each full si
 
 ## Return next week
 
-Choose **Save this week** to store one validated plan locally. **Load saved week** restores it; **Remove saved week** removes only ShiftMargin's saved data. Nothing is saved automatically and there is no cloud sync. **Plan next week** advances care windows seven days, preserves household assumptions, clears shift offers and reminds you to reconfirm availability. A DST transition week is rejected.
+Choose **Save this week** to store one validated plan locally. **Load saved week** restores it; **Remove saved week** removes only ShiftMargin's saved data. Nothing is saved automatically; refreshing loses an unsaved plan. There is no cloud sync. **Plan next week** advances care windows seven days, preserves household assumptions, clears shift offers and reminds you to reconfirm availability. A DST transition week is rejected.
 
 ## Boundaries
 
@@ -55,6 +55,8 @@ Static output works on GitHub Pages, Vercel or Netlify. The relative asset base 
 
 ## Documentation
 
+- [V2.1 polish decisions](docs/POLISH_V2_1.md)
+- [V2.1 release QA](docs/QA_V2_1.md)
 - [V2 UX architecture](docs/UX_REDESIGN_V2.md)
 - [V2 release QA](docs/QA_V2.md)
 - [Master plan](docs/MASTER_PLAN.md)

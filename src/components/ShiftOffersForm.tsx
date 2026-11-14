@@ -17,6 +17,63 @@ export type FormProps = {
   issues: Issue[];
   advanced: boolean;
 };
+export function ShiftCount({
+  plan,
+  change,
+  issues,
+}: Omit<FormProps, "advanced">) {
+  const [custom, setCustom] = useState(
+    ![1, 2].includes(plan.maxAdditionalShifts),
+  );
+  const showCustom = custom || ![1, 2].includes(plan.maxAdditionalShifts);
+  return (
+    <fieldset className="shift-limit">
+      <legend>How many extra shifts could you take?</legend>
+      <div
+        className="limit-options"
+        role="group"
+        aria-label="Extra shift limit"
+      >
+        {[1, 2].map((n) => (
+          <button
+            key={n}
+            type="button"
+            aria-pressed={!showCustom && plan.maxAdditionalShifts === n}
+            onClick={() => {
+              setCustom(false);
+              change({ ...plan, maxAdditionalShifts: n });
+            }}
+          >
+            {n === 1 ? "Just one" : "Up to two"}
+          </button>
+        ))}
+        <button
+          type="button"
+          aria-pressed={showCustom}
+          onClick={() => setCustom(true)}
+        >
+          Custom limit
+        </button>
+      </div>
+      {showCustom && (
+        <NumberField
+          label="Maximum extra shifts"
+          min="0"
+          max="10"
+          step="1"
+          value={plan.maxAdditionalShifts}
+          issue={issues.find((i) => i.path === "maxAdditionalShifts")?.message}
+          onChange={(maxAdditionalShifts) =>
+            change({ ...plan, maxAdditionalShifts })
+          }
+        />
+      )}
+      <p className="hint">
+        We’ll compare all your offers and stay within this limit.
+      </p>
+    </fieldset>
+  );
+}
 export function Limits({ plan, change, issues }: Omit<FormProps, "advanced">) {
   const error = (p: string) => issues.find((i) => i.path === p)?.message;
   return (
@@ -32,28 +89,34 @@ export function Limits({ plan, change, issues }: Omit<FormProps, "advanced">) {
           change({ ...plan, maxAdditionalShifts })
         }
       />
-      <Field
-        label="Maximum work hours (optional)"
-        type="number"
-        min="0"
-        max="168"
-        step="0.25"
-        placeholder="No limit"
-        value={
-          plan.maxAdditionalWorkMinutes === null
-            ? ""
-            : plan.maxAdditionalWorkMinutes / 60
-        }
-        issue={error("maxAdditionalWorkMinutes")}
-        onChange={(e) =>
-          change({
-            ...plan,
-            maxAdditionalWorkMinutes:
-              e.target.value === "" ? null : Number(e.target.value) * 60,
-          })
-        }
-      />
+      <WorkHours plan={plan} change={change} issues={issues} />
     </div>
+  );
+}
+function WorkHours({ plan, change, issues }: Omit<FormProps, "advanced">) {
+  const error = (p: string) => issues.find((i) => i.path === p)?.message;
+  return (
+    <Field
+      label="Maximum work hours (optional)"
+      type="number"
+      min="0"
+      max="168"
+      step="0.25"
+      placeholder="No limit"
+      value={
+        plan.maxAdditionalWorkMinutes === null
+          ? ""
+          : plan.maxAdditionalWorkMinutes / 60
+      }
+      issue={error("maxAdditionalWorkMinutes")}
+      onChange={(e) =>
+        change({
+          ...plan,
+          maxAdditionalWorkMinutes:
+            e.target.value === "" ? null : Number(e.target.value) * 60,
+        })
+      }
+    />
   );
 }
 export default function ShiftOffersForm({
@@ -243,22 +306,21 @@ export default function ShiftOffersForm({
           You have 10 shifts. Remove one to compare a different offer.
         </p>
       )}
+      <ShiftCount plan={plan} change={change} issues={issues} />
       <Disclosure
         className="section-disclosure"
         expanded={advanced}
-        attention={issues.some((i) => i.path.startsWith("maxAdditional"))}
+        attention={issues.some((i) => i.path === "maxAdditionalWorkMinutes")}
       >
         <summary>
-          How much extra work?{" "}
+          Set a work-hour limit{" "}
           <span>
-            Up to {plan.maxAdditionalShifts}{" "}
-            {plan.maxAdditionalShifts === 1 ? "shift" : "shifts"}
+            {plan.maxAdditionalWorkMinutes === null
+              ? "Optional"
+              : `${plan.maxAdditionalWorkMinutes / 60} hours`}
           </span>
         </summary>
-        <p className="hint">
-          We can recommend a combination of shifts, within your limits.
-        </p>
-        <Limits plan={plan} change={change} issues={issues} />
+        <WorkHours plan={plan} change={change} issues={issues} />
       </Disclosure>
       <p className="hint">
         Times are local to your selected time zone. Use :00, :15, :30 or :45.
