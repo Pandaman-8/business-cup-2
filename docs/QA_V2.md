@@ -55,4 +55,11 @@ Estimates only; user-entered availability is not booking or proof of safe care. 
 
 ## Production release
 
-Pending release verification; append the actual commit and workflow results after deployment. New public screenshots will be captured from the deployed site.
+- Application commit: `cbc63ff9a0cf42aa6d0e6c41c7a09151f841898f`.
+- [Main CI](https://github.com/Pandaman-8/business-cup-2/actions/runs/43588190026): success.
+- [Pages deployment](https://github.com/Pandaman-8/business-cup-2/actions/runs/43588189983): success.
+- Stable URL returned the new `index-KDXhakDP.js` build. Browser testing used `?v=cbc63ff` to avoid a cached V1 page.
+- Repository metadata confirms public visibility.
+- Deployed example: one shift $98.40; cap two $121.60; removing partner selects Saturday $23.20 and rejects Sunday. Fresh custom mobile flow returns $85.55. Browser console errors: none observed.
+
+Production captures for the pitch: [entry](screenshots/v2-entry.jpg), [desktop result](screenshots/v2-desktop.jpg), [mobile result](screenshots/v2-mobile.jpg), [custom mobile result](screenshots/v2-custom-mobile.jpg).
