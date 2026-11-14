@@ -93,6 +93,15 @@ describe("Free and functional Plus Demo journeys", () => {
     click("Save this week");
     const saved = localStorage.getItem(STORAGE_KEY);
     click("Save this week");
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(
+      screen.getAllByText("This week is already saved.").length,
+    ).toBeGreaterThan(0);
+    click("Change limit");
+    click("Up to two");
+    click("4 Your result");
+    await result("$121.60");
+    click("Save this week");
     expect(within(modal()).getByText(/Replacing it will remove/)).toBeTruthy();
     expect(localStorage.getItem(STORAGE_KEY)).toBe(saved);
     inDialog("Cancel");
@@ -100,7 +109,7 @@ describe("Free and functional Plus Demo journeys", () => {
     click("Save this week");
     inDialog("Replace Free saved week");
     expect(screen.queryByRole("dialog")).toBeNull();
-    await result("$98.40");
+    await result("$121.60");
   });
   it("upgrades from a second save, keeps both snapshots, recalculates comparison and restores a plan", async () => {
     render(<App />);
@@ -250,6 +259,10 @@ describe("Free and functional Plus Demo journeys", () => {
     render(<App />);
     click("Try an example");
     await result("$98.40");
+    click("Change limit");
+    click("Up to two");
+    click("4 Your result");
+    await result("$121.60");
     click("Save another plan");
     const raw = localStorage.getItem(LIBRARY_KEY);
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
@@ -265,12 +278,12 @@ describe("Free and functional Plus Demo journeys", () => {
       within(modal()).queryByText(/Plan saved in this browser/),
     ).toBeNull();
   });
-  it("stops a sixth save and allows deletion to make room", async () => {
+  it("stops a thirteenth save and allows deletion to make room", async () => {
     setDemo(localStorage, true);
     localStorage.setItem(
       LIBRARY_KEY,
       serializeLibrary(
-        Array.from({ length: 5 }, (_, i) =>
+        Array.from({ length: 12 }, (_, i) =>
           makeSavedPlan(demoWeek(), true, `Plan ${i + 1}`),
         ),
       ),

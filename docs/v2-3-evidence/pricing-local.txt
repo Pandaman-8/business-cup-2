@@ -1,0 +1,100 @@
+- link "Skip to content":
+  - /url: "#main"
+- banner:
+  - button "ShiftMargin home":
+    - text: ShiftMargin
+    - generic: .
+  - button "Advanced Planning"
+- main:
+  - navigation "Comparison steps":
+    - list:
+      - button "1 Your shifts":
+        - generic: "1"
+        - generic: Your shifts
+      - button "2 Childcare":
+        - generic: "2"
+        - generic: Childcare
+      - button "3 Your costs":
+        - generic: "3"
+        - generic: Your costs
+      - button "4 Your result":
+        - generic: "4"
+        - generic: Your result
+  - generic: Quick Compare
+  - text: Illustrative example
+  - button "Reset"
+  - paragraph: Fictional shifts, real calculation. Edit any input to see what changes.
+  - region "Your recommendation":
+    - status:
+      - generic: "Saturday shift + Sunday shift. Estimated additional money kept: $121.60."
+    - paragraph: Recommended plan
+    - heading "Saturday shift + Sunday shift" [level=1]
+    - paragraph:
+      - text: "Your limit: up to 2 extra shifts"
+      - button "Change limit"
+    - paragraph: Estimated additional money kept
+    - strong: $121.60
+    - paragraph: Compared with taking no extra shifts
+    - paragraph:
+      - strong: $23.20 more
+      - text: than Sunday shift.
+    - heading "Why this works for you" [level=2]
+    - paragraph: Taking these shifts together leaves you the most money within your work limits.
+    - paragraph: ✓ Work and commute are covered by your entered care.
+    - generic "Where the money goes $362.00 before costs":
+      - text: Where the money goes
+      - generic: $362.00 before costs
+    - heading "Compare your options" [level=2]
+    - button "Edit shifts"
+    - paragraph: Up to 2 extra shifts. Only covered plans are ranked.
+    - strong: Saturday shift + Sunday shift
+    - generic: Recommended
+    - strong: $121.60
+    - strong: Sunday shift
+    - generic: Childcare $0.00 · travel $12.00
+    - strong: $98.40
+    - strong: Saturday shift
+    - generic: Childcare $144.00 · travel $12.00
+    - strong: $23.20
+    - strong: No extra shifts
+    - generic: Childcare $0.00 · travel $0.00
+    - strong: $0.00
+    - generic "Care for the recommended plan Review hours":
+      - text: Care for the recommended plan
+      - generic: Review hours
+    - generic "Assumptions behind this estimate"
+    - generic "What if my plans change?"
+  - button "Edit my week"
+  - button "Save this week"
+  - button "Save another plan"
+  - button "Plan library"
+  - button "Plan next week Copy care settings and add new shifts":
+    - text: Plan next week →
+    - generic: Copy care settings and add new shifts
+  - generic "Saved week & privacy"
+- dialog "Keep your options. Skip starting over.":
+  - heading "Keep your options. Skip starting over." [active] [level=2]
+  - button "Close"
+  - paragraph: Free helps you decide this week. Plus helps you compare changing plans over time.
+  - heading "Free forever" [level=3]
+  - paragraph: $0
+  - list:
+    - listitem: Full weekly calculation and what-if changes
+    - listitem: Cost breakdown and shift comparison
+    - listitem: One saved week and next-week planning
+  - heading "ShiftMargin Plus" [level=3]
+  - paragraph: $5.99/month
+  - list:
+    - listitem: Keep up to 12 named plans
+    - listitem: Reuse a previous plan for next week
+    - listitem: Compare two plans with fresh calculations
+  - paragraph: Proposed price for a future subscription. This is a functional monetization prototype, not a paid subscription.
+  - button "Try Plus Demo — No payment required"
+  - button "Continue with Free"
+  - paragraph: No card required. No payment or automatic charge. This Demo does not expire; you can turn it off anytime. Plans stay in this browser.
+  - generic "Stored plans & privacy"
+  - paragraph: Plans are stored in this browser only. No account or cloud sync. Nothing is sent to a server.
+- contentinfo:
+  - generic: ShiftMargin · Earn more. Keep more.
+  - button "Free & Plus"
+  - generic: Estimates, not guarantees. Confirm care directly.

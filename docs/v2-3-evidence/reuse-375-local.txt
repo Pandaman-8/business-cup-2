@@ -1,0 +1,70 @@
+- link "Skip to content":
+  - /url: "#main"
+- banner:
+  - button "ShiftMargin home":
+    - text: ShiftMargin
+    - generic: .
+  - button "Advanced Planning"
+- main:
+  - navigation "Comparison steps":
+    - list:
+      - button "1 Your shifts":
+        - generic: "1"
+        - generic: Your shifts
+      - button "2 Childcare" [disabled]:
+        - generic: "2"
+        - generic: Childcare
+      - button "3 Your costs" [disabled]:
+        - generic: "3"
+        - generic: Your costs
+      - button "4 Your result" [disabled]:
+        - generic: "4"
+        - generic: Your result
+  - generic: Quick Compare
+  - text: Illustrative example
+  - button "Reset"
+  - paragraph: Plus demo active · No payment processed
+  - paragraph: Fictional shifts, real calculation. Edit any input to see what changes.
+  - status: Care hours copied to next week; shift offers cleared. Reconfirm every copied care window before accepting work.
+  - generic "Week of Nov 23 · Chicago · Change":
+    - text: Week of Nov 23
+    - generic: · Chicago · Change
+  - option "New York"
+  - option "Chicago" [selected]
+  - option "Denver"
+  - option "Los Angeles"
+  - option "Anchorage"
+  - option "Phoenix"
+  - option "Honolulu"
+  - heading "Which shifts are you considering?" [active] [level=1]
+  - paragraph: Start with the work you could take. We’ll compare what you keep.
+  - generic: Day for a new shift
+  - combobox "Day for a new shift":
+    - option "Monday · Nov 23"
+    - option "Tuesday · Nov 24"
+    - option "Wednesday · Nov 25"
+    - option "Thursday · Nov 26"
+    - option "Friday · Nov 27"
+    - option "Saturday · Nov 28" [selected]
+    - option "Sunday · Nov 29"
+  - button "+ Add a shift"
+  - group "How many extra shifts could you take?":
+    - generic: How many extra shifts could you take?
+    - group "Extra shift limit":
+      - button "Just one" [pressed]
+      - button "Up to two"
+      - button "Custom limit"
+    - paragraph: We’ll compare all your offers and stay within this limit.
+  - generic "Set a work-hour limit Optional":
+    - text: Set a work-hour limit
+    - generic: Optional
+  - paragraph: Times are local to your selected time zone. Use :00, :15, :30 or :45.
+  - button "← Home"
+  - button "Continue to childcare":
+    - text: Continue to childcare
+    - generic: →
+  - generic "Saved week & privacy"
+- contentinfo:
+  - generic: ShiftMargin · Earn more. Keep more.
+  - button "Free & Plus"
+  - generic: Estimates, not guarantees. Confirm care directly.

@@ -20,6 +20,7 @@ import type { SavedPlan } from "../storage/planLibrary";
 import Modal from "./Modal";
 import { Field } from "./Fields";
 import SavedPlanComparison from "./SavedPlanComparison";
+import { samePlan } from "../storage/planIdentity";
 export type PlanAction = "library" | "pricing" | "save-extra" | "replace-free";
 type Page =
   | "pricing"
@@ -73,6 +74,8 @@ export default function PlanManager({
   onDemoChange,
   onRestore,
   onReplaceFree,
+  onSaved,
+  onReuse,
 }: {
   action: PlanAction;
   plan: PlanInput;
@@ -82,6 +85,8 @@ export default function PlanManager({
   onDemoChange: (active: boolean) => void;
   onRestore: (saved: SavedPlan) => void;
   onReplaceFree: (expected: string | null) => void;
+  onSaved: () => boolean;
+  onReuse: (saved: SavedPlan) => void;
 }) {
   const [active, setActive] = useState(activeDemo);
   const [store, setStore] = useState(snapshot);
@@ -106,12 +111,8 @@ export default function PlanManager({
   const canSave = hasPlan && validate(plan).length === 0;
   const freeToCopy =
     store.free &&
-    !store.plans.some(
-      (p) =>
-        JSON.stringify(p.plan) === JSON.stringify(store.free!.plan) &&
-        p.illustrative === store.free!.illustrative,
-    ) &&
-    JSON.stringify(store.free.plan) !== JSON.stringify(plan)
+    !store.plans.some((p) => samePlan(p, store.free!)) &&
+    !samePlan(store.free, { plan, illustrative })
       ? store.free
       : null;
   const pair = useMemo(
@@ -195,6 +196,13 @@ export default function PlanManager({
     try {
       if (!canSave)
         throw new Error("Correct your current plan’s inputs before saving it.");
+      requireCurrent();
+      if (store.plans.some((p) => samePlan(p, { plan, illustrative }))) {
+        if (onSaved()) return;
+        show("library");
+        setNotice("This plan is already in your library.");
+        return;
+      }
       if (freeToCopy && includeFree) checkFreeSnapshot();
       const extra =
         freeToCopy && includeFree
@@ -208,13 +216,14 @@ export default function PlanManager({
           : [];
       if (store.plans.length + extra.length + 1 > MAX_PLANS)
         throw new Error(
-          "Your library holds up to five plans. Delete a plan first, or keep the Free week in its separate slot.",
+          `Your library holds up to ${MAX_PLANS} plans. Delete a plan first, or keep the Free week in its separate slot.`,
         );
       update([
         ...store.plans,
         ...extra,
         makeSavedPlan(plan, illustrative, name),
       ]);
+      if (onSaved()) return;
       setSelected([]);
       show("library");
       setNotice(
@@ -252,10 +261,10 @@ export default function PlanManager({
   ].includes(page);
   const displayPage = protectedPage && !active ? "pricing" : page;
   const title = {
-    pricing: "A plan for this week. Room for what’s next.",
+    pricing: "Keep your options. Skip starting over.",
     library: "Your plan library",
     save: "Save another plan",
-    "replace-free": "Keep your saved week?",
+    "replace-free": "Want to keep both plans?",
     rename: "Rename plan",
     delete: "Delete this plan?",
     clear: "Clear the Plus library?",
@@ -279,12 +288,12 @@ export default function PlanManager({
       {displayPage === "pricing" && (
         <>
           <p className="dialog-intro">
-            Compare this week for free. Keep your options across weeks with
-            Plus.
+            Free helps you decide this week. Plus helps you compare changing
+            plans over time.
           </p>
           <div className="pricing-grid">
             <section>
-              <h3>Free</h3>
+              <h3>Free forever</h3>
               <p className="price">$0</p>
               <ul>
                 <li>Full weekly calculation and what-if changes</li>
@@ -298,8 +307,8 @@ export default function PlanManager({
                 $5.99<span>/month</span>
               </p>
               <ul>
-                <li>Keep up to five named plans</li>
-                <li>Reopen and manage your saved history</li>
+                <li>Keep up to {MAX_PLANS} named plans</li>
+                <li>Reuse a previous plan for next week</li>
                 <li>Compare two plans with fresh calculations</li>
               </ul>
             </section>
@@ -326,8 +335,8 @@ export default function PlanManager({
             </button>
           </div>
           <p className="hint">
-            No card details. No payment. Demo access is stored locally and can
-            be turned off.
+            No card required. No payment or automatic charge. This Demo does not
+            expire; you can turn it off anytime. Plans stay in this browser.
           </p>
           <details className="section-disclosure">
             <summary>Stored plans & privacy</summary>
@@ -344,7 +353,8 @@ export default function PlanManager({
       {displayPage === "replace-free" && (
         <>
           <p className="dialog-intro">
-            Free keeps one saved week. Replacing it will remove the previous
+            Your Free plan holds one saved week. With Plus, keep both options
+            and compare what changes. Replacing it will remove the previous
             saved version.
           </p>
           {store.free && (
@@ -375,6 +385,7 @@ export default function PlanManager({
               onClick={() => {
                 try {
                   onReplaceFree(store.freeRaw);
+                  onSaved();
                   onClose();
                 } catch (e) {
                   setError(message(e));
@@ -471,8 +482,8 @@ export default function PlanManager({
             Keep a few options. Return when your shifts or care change.
           </p>
           <p className="hint">
-            Opening a plan replaces your current inputs. Save your current plan
-            first if you want to keep it.
+            Open a previous plan or compare two options. We’ll ask before
+            discarding unsaved work.
           </p>
           {store.error ? (
             <p className="error-summary" role="alert">
@@ -517,6 +528,16 @@ export default function PlanManager({
                           {p.illustrative ? " · example" : ""}
                         </small>
                         <small>
+                          {p.plan.offers.length} shift{" "}
+                          {p.plan.offers.length === 1 ? "offer" : "offers"}
+                          {" · "}up to {p.plan.maxAdditionalShifts} extra{" "}
+                          {p.plan.maxAdditionalShifts === 1
+                            ? "shift"
+                            : "shifts"}
+                          {" · "}
+                          {p.plan.withholdingPercent}% withholding
+                        </small>
+                        <small>
                           Saved{" "}
                           {new Date(p.savedAt).toLocaleDateString("en-US", {
                             month: "short",
@@ -534,13 +555,26 @@ export default function PlanManager({
                           try {
                             requireCurrent();
                             onRestore(p);
-                            onClose();
                           } catch (e) {
                             setError(message(e));
                           }
                         }}
                       >
                         Open
+                      </button>
+                      <button
+                        className="text-button"
+                        aria-label={`Use ${p.name} for next week`}
+                        onClick={() => {
+                          try {
+                            requireCurrent();
+                            onReuse(p);
+                          } catch (e) {
+                            setError(message(e));
+                          }
+                        }}
+                      >
+                        Use this plan for next week
                       </button>
                       <button
                         className="text-button"
@@ -601,12 +635,7 @@ export default function PlanManager({
                 </p>
               )}
               {store.free &&
-                !store.plans.some(
-                  (p) =>
-                    JSON.stringify(p.plan) ===
-                      JSON.stringify(store.free!.plan) &&
-                    p.illustrative === store.free!.illustrative,
-                ) && (
+                !store.plans.some((p) => samePlan(p, store.free!)) && (
                   <button
                     className="text-button"
                     disabled={store.plans.length >= MAX_PLANS}

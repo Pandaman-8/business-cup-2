@@ -26,6 +26,18 @@ class TestWorker {
     this.cancelled = true;
   }
 }
+Object.defineProperty(HTMLDialogElement.prototype, "showModal", {
+  configurable: true,
+  value: function (this: HTMLDialogElement) {
+    this.setAttribute("open", "");
+  },
+});
+Object.defineProperty(HTMLDialogElement.prototype, "close", {
+  configurable: true,
+  value: function (this: HTMLDialogElement) {
+    this.removeAttribute("open");
+  },
+});
 beforeEach(() => {
   vi.stubGlobal("Worker", TestWorker);
   vi.stubGlobal("scrollTo", () => {});
@@ -74,6 +86,7 @@ describe("V2 full user journeys with the real engine", () => {
     await result("$98.40");
     fireEvent.click(screen.getByText("Saved week & privacy"));
     click("Load saved week");
+    click("Discard changes and open");
     await result("$23.20");
   });
   it("compares custom Monday work with explicit care and preserves partial money drafts across steps/modes", async () => {
@@ -288,6 +301,7 @@ describe("V2.1 visible limits and care review", () => {
     click("4 Your result");
     await result("$23.20");
     click("Reset");
+    click("Discard changes and open");
     await result("$98.40");
     expect(
       screen.queryByText("Work hours changed. Recheck childcare."),
@@ -298,6 +312,7 @@ describe("V2.1 visible limits and care review", () => {
     click("Try an example");
     await result("$98.40");
     click("Plan next week Copy care settings and add new shifts");
+    click("Discard changes and open");
     expect(screen.getByRole("status").textContent).toContain(
       "Reconfirm every copied care window",
     );

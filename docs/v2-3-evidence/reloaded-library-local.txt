@@ -1,0 +1,68 @@
+- link "Skip to content":
+  - /url: "#main"
+- banner:
+  - button "ShiftMargin home":
+    - text: ShiftMargin
+    - generic: .
+- main:
+  - generic: A little clarity before you say yes.
+  - heading "Find the shift that leaves you more." [level=1]:
+    - text: Find the shift that
+    - emphasis: leaves you more.
+  - paragraph: Compare extra shifts after childcare, travel and estimated withholding.
+  - button "Compare my shifts":
+    - text: Compare my shifts
+    - generic: →
+  - button "Try an example"
+  - paragraph: No sign-up required · Private calculation · Estimated results
+  - paragraph:
+    - generic: "01"
+    - strong: Add your shifts
+    - generic: The hours and pay you’re considering.
+  - paragraph:
+    - generic: "02"
+    - strong: Confirm care
+    - generic: Who’s available while you work.
+  - paragraph:
+    - generic: "03"
+    - strong: See what stays
+    - generic: The money left after added costs.
+  - button "Load a saved week"
+  - button "Plan library"
+  - paragraph: Plus demo active · No payment processed
+- dialog "Your plan library":
+  - heading "Your plan library" [active] [level=2]
+  - button "Close"
+  - paragraph: Plus demo active · No payment processed
+  - paragraph: Keep a few options. Return when your shifts or care change.
+  - paragraph: Open a previous plan or compare two options. We’ll ask before discarding unsaved work.
+  - paragraph: 2 of 12 plans saved · Select two to compare
+  - article:
+    - checkbox "Compare Free week · Nov 16"
+    - strong: Free week · Nov 16
+    - generic: Week of Nov 16 · 2026 · example
+    - generic: 2 shift offers · up to 1 extra shift · 20% withholding
+    - generic: Saved Nov 14, 2026
+    - button "Open Free week · Nov 16": Open
+    - button "Use Free week · Nov 16 for next week": Use this plan for next week
+    - button "Rename Free week · Nov 16": Rename
+    - button "Delete Free week · Nov 16": Delete
+  - article:
+    - checkbox "Compare Week of Nov 16 · Two shifts"
+    - strong: Week of Nov 16 · Two shifts
+    - generic: Week of Nov 16 · 2026 · example
+    - generic: 2 shift offers · up to 2 extra shifts · 20% withholding
+    - generic: Saved Nov 14, 2026
+    - button "Open Week of Nov 16 · Two shifts": Open
+    - button "Use Week of Nov 16 · Two shifts for next week": Use this plan for next week
+    - button "Rename Week of Nov 16 · Two shifts": Rename
+    - button "Delete Week of Nov 16 · Two shifts": Delete
+  - button "Compare selected plans" [disabled]
+  - button "Refresh library"
+  - button "Clear Plus library"
+  - button "Turn off Plus Demo"
+  - paragraph: Plans are stored in this browser only. No account or cloud sync. Nothing is sent to a server.
+- contentinfo:
+  - generic: ShiftMargin · Earn more. Keep more.
+  - button "Free & Plus"
+  - generic: Estimates, not guarantees. Confirm care directly.

@@ -16,7 +16,16 @@ import ResultsPanel from "./components/ResultsPanel";
 import { changedCareNeeds } from "./ui/planAdapter";
 import PlanManager from "./components/PlanManager";
 import type { PlanAction } from "./components/PlanManager";
-import { demoIsActive, DEMO_KEY } from "./storage/planLibrary";
+import {
+  demoIsActive,
+  DEMO_KEY,
+  LIBRARY_KEY,
+  parseLibrary,
+} from "./storage/planLibrary";
+import { samePlan } from "./storage/planIdentity";
+import type { PlanSnapshot } from "./storage/planIdentity";
+import type { SavedPlan } from "./storage/planLibrary";
+import Modal from "./components/Modal";
 import WeekSettings from "./components/WeekSettings";
 const steps = ["Your shifts", "Childcare", "Your costs", "Your result"];
 function issueStep(i: Issue) {
@@ -64,6 +73,10 @@ export default function App() {
     [navigationError, setNavigationError] = useState("");
   const [careReview, setCareReview] = useState<string[]>([]);
   const [planAction, setPlanAction] = useState<PlanAction | null>(null);
+  const [unsavedPrompt, setUnsavedPrompt] = useState(false);
+  const [edited, setEdited] = useState(false);
+  const pendingTransition = useRef<null | (() => void)>(null);
+  const ownFreeWrite = useRef<string | null>(null);
   const [plusActive, setPlusActive] = useState(() => {
     try {
       return demoIsActive(localStorage);
@@ -95,6 +108,75 @@ export default function App() {
       ? (calculation.error ?? "")
       : "";
   const pending = step === 4 && valid && !result && !error;
+  function hasUnsavedWork() {
+    if (!hasPlan || (!edited && plan.offers.length === 0)) return false;
+    if (!valid) return true;
+    const current = { plan, illustrative: sample };
+    // Read at the moment of navigation, including changes made in another tab.
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw && samePlan(current, deserializeWeek(raw))) return false;
+    } catch {
+      /* Unreadable storage is not evidence that work is saved. */
+    }
+    try {
+      if (
+        parseLibrary(localStorage.getItem(LIBRARY_KEY)).some((p) =>
+          samePlan(current, p),
+        )
+      )
+        return false;
+    } catch {
+      /* Preserve the current inputs if the library cannot be read. */
+    }
+    return true;
+  }
+  useEffect(() => {
+    function leaving(event: BeforeUnloadEvent) {
+      if (hasUnsavedWork()) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    }
+    window.addEventListener("beforeunload", leaving);
+    return () => window.removeEventListener("beforeunload", leaving);
+  }, [plan, sample, hasPlan, edited, valid]);
+  function runTransition(run: () => void) {
+    try {
+      run();
+    } catch (e) {
+      setNote(
+        e instanceof Error
+          ? e.message
+          : "Could not open this plan. Your current inputs are unchanged.",
+      );
+    }
+  }
+  function requestTransition(run: () => void, target?: PlanSnapshot) {
+    ownFreeWrite.current = null;
+    setPlanAction(null);
+    if (target && valid && samePlan({ plan, illustrative: sample }, target)) {
+      runTransition(run);
+    } else if (hasUnsavedWork()) {
+      pendingTransition.current = run;
+      setUnsavedPrompt(true);
+    } else runTransition(run);
+  }
+  function finishSave() {
+    const run = pendingTransition.current;
+    if (!run) return false;
+    pendingTransition.current = null;
+    setPlanAction(null);
+    setUnsavedPrompt(false);
+    runTransition(run);
+    return true;
+  }
+  function cancelTransition() {
+    pendingTransition.current = null;
+    setUnsavedPrompt(false);
+    setPlanAction(null);
+    ownFreeWrite.current = null;
+  }
   useEffect(() => {
     if (step !== 4 || !valid) return;
     const worker = new Worker(
@@ -161,14 +243,22 @@ export default function App() {
     setNavigationError("");
   }
   function start(isSample: boolean) {
-    replace(isSample ? demoWeek() : newWeek());
-    setSample(isSample);
-    setHasPlan(true);
-    setAdvanced(false);
-    setFurthest(isSample ? 4 : 1);
-    setStep(isSample ? 4 : 1);
+    const next = isSample ? demoWeek() : newWeek();
+    requestTransition(
+      () => {
+        replace(next);
+        setEdited(false);
+        setSample(isSample);
+        setHasPlan(true);
+        setAdvanced(false);
+        setFurthest(isSample ? 4 : 1);
+        setStep(isSample ? 4 : 1);
+      },
+      { plan: next, illustrative: isSample },
+    );
   }
   function change(p: PlanInput) {
+    setEdited(true);
     const changed = changedCareNeeds(plan, p);
     setCareReview((old) =>
       [...new Set([...old, ...changed])].filter((id) =>
@@ -182,18 +272,29 @@ export default function App() {
   function save() {
     try {
       const text = serializeWeek(plan, sample);
-      if (localStorage.getItem(STORAGE_KEY) !== null) {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw !== null) {
+        try {
+          if (samePlan({ plan, illustrative: sample }, deserializeWeek(raw))) {
+            setNote("This week is already saved.");
+            finishSave();
+            return;
+          }
+        } catch {
+          /* Explicit replacement still protects corrupt stored data. */
+        }
         setPlanAction("replace-free");
         return;
       }
       localStorage.setItem(STORAGE_KEY, text);
-      setNote(
-        "Week saved on this browser. Saving again replaces your previous saved week.",
-      );
+      ownFreeWrite.current = text;
+      setNote("Week saved on this browser. You can return to it anytime here.");
+      finishSave();
     } catch {
       setNote(
         "Could not save. Check your inputs and whether this browser allows local storage.",
       );
+      if (pendingTransition.current) setUnsavedPrompt(true);
     }
   }
   function replaceFree(expected: string | null) {
@@ -203,6 +304,7 @@ export default function App() {
         "The Free saved week changed in another tab. Close this dialog and try saving again.",
       );
     localStorage.setItem(STORAGE_KEY, text);
+    ownFreeWrite.current = text;
     setNote("Free saved week replaced on this browser.");
   }
   function restore() {
@@ -213,14 +315,22 @@ export default function App() {
         return;
       }
       const saved = deserializeWeek(text);
-      replace(
-        saved.plan,
-        "Saved week loaded. Recheck care availability before accepting shifts.",
-      );
-      setSample(saved.illustrative);
-      setHasPlan(true);
-      setFurthest(4);
-      setStep(saved.plan.offers.length ? 4 : 1);
+      requestTransition(() => {
+        const latest = localStorage.getItem(STORAGE_KEY);
+        if (latest !== text && latest !== ownFreeWrite.current)
+          throw new Error(
+            "The Free saved week changed in another tab. Load it again; your current inputs are unchanged.",
+          );
+        replace(
+          saved.plan,
+          "Saved week loaded. Recheck care availability before accepting shifts.",
+        );
+        setSample(saved.illustrative);
+        setHasPlan(true);
+        setFurthest(4);
+        setStep(saved.plan.offers.length ? 4 : 1);
+        setEdited(false);
+      }, saved);
     } catch {
       setNote(
         "Could not load this saved week. Your current inputs are unchanged.",
@@ -229,17 +339,52 @@ export default function App() {
   }
   function reuse() {
     try {
-      replace(
-        nextWeekSettings(plan),
-        "Care hours copied to next week; shift offers cleared. Reconfirm every copied care window before accepting work.",
-      );
-      setStep(1);
-      setFurthest(1);
+      const next = nextWeekSettings(plan);
+      requestTransition(() => {
+        replace(
+          next,
+          "Care hours copied to next week; shift offers cleared. Reconfirm every copied care window before accepting work.",
+        );
+        setStep(1);
+        setFurthest(1);
+        setEdited(true);
+      });
     } catch {
       setNote(
         "Could not plan next week. Fix input errors first; the next week must have no daylight saving clock change.",
       );
     }
+  }
+  function openLibrary(saved: SavedPlan, forNextWeek = false) {
+    // Validate a next-week transformation before interrupting current work.
+    const next = forNextWeek ? nextWeekSettings(saved.plan) : saved.plan;
+    requestTransition(
+      () => {
+        if (!demoIsActive(localStorage))
+          throw new Error(
+            "Plus Demo was turned off. Your current inputs and saved plans are unchanged. Reopen the library to unlock it again.",
+          );
+        const latest = parseLibrary(localStorage.getItem(LIBRARY_KEY)).find(
+          (p) => p.id === saved.id,
+        );
+        if (!latest || !samePlan(latest, saved))
+          throw new Error(
+            "This library plan changed in another tab. Reopen the library; your current inputs are unchanged.",
+          );
+        replace(
+          next,
+          forNextWeek
+            ? "Care hours copied to next week; shift offers cleared. Reconfirm every copied care window before accepting work."
+            : "Library plan opened. Recheck care availability before accepting shifts.",
+        );
+        setSample(saved.illustrative);
+        setHasPlan(true);
+        setFurthest(forNextWeek ? 1 : 4);
+        setStep(forNextWeek || !next.offers.length ? 1 : 4);
+        setEdited(forNextWeek);
+      },
+      forNextWeek ? undefined : saved,
+    );
   }
   return (
     <>
@@ -293,7 +438,8 @@ export default function App() {
               <em>leaves you more.</em>
             </h1>
             <p className="entry-description">
-              Compare extra shifts after childcare and travel costs.
+              Compare extra shifts after childcare, travel and estimated
+              withholding.
             </p>
             <div className="entry-actions">
               <button className="primary-button" onClick={() => start(false)}>
@@ -436,7 +582,15 @@ export default function App() {
               <WeekSettings
                 issues={issues}
                 plan={plan}
-                replace={replace}
+                replace={(next, message) => {
+                  const apply = () => {
+                    replace(next, message);
+                    setEdited(true);
+                  };
+                  if (next.weekStart !== plan.weekStart)
+                    requestTransition(apply);
+                  else apply();
+                }}
                 advanced={advanced}
               />
               <ShiftOffersForm
@@ -534,8 +688,8 @@ export default function App() {
             <summary>Saved week & privacy</summary>
             <p className="hint">
               Save one week on this browser only. Nothing is saved automatically
-              or sent to a server. Reloading closes an unsaved plan. No cloud
-              sync.
+              or sent to a server. Save before reloading; unsaved inputs are not
+              recovered. No cloud sync.
             </p>
             <div className="actions">
               <button className="text-button" onClick={restore}>
@@ -560,25 +714,61 @@ export default function App() {
           </details>
         </div>
       </main>
+      {unsavedPrompt && (
+        <Modal title="You have unsaved changes." onClose={cancelTransition}>
+          <p>
+            Your current plan is not saved. Keep it before opening something
+            else?
+          </p>
+          {note.startsWith("Could not save") && (
+            <p className="error-summary" role="alert">
+              {note}
+            </p>
+          )}
+          {!valid && (
+            <p className="notice">
+              Some inputs are incomplete. Cancel to finish them before saving.
+            </p>
+          )}
+          <div className="dialog-actions">
+            <button
+              className="primary-button"
+              disabled={!valid}
+              onClick={() => {
+                setUnsavedPrompt(false);
+                save();
+              }}
+            >
+              Save current plan
+            </button>
+            <button
+              className="secondary-button"
+              onClick={() => {
+                const run = pendingTransition.current;
+                cancelTransition();
+                if (run) runTransition(run);
+              }}
+            >
+              Discard changes and open
+            </button>
+            <button className="text-button" onClick={cancelTransition}>
+              Cancel
+            </button>
+          </div>
+        </Modal>
+      )}
       {planAction && (
         <PlanManager
           action={planAction}
           plan={plan}
           illustrative={sample}
           hasPlan={hasPlan}
-          onClose={() => setPlanAction(null)}
+          onClose={cancelTransition}
+          onSaved={finishSave}
           onDemoChange={setPlusActive}
           onReplaceFree={replaceFree}
-          onRestore={(saved) => {
-            replace(
-              saved.plan,
-              "Library plan opened. Recheck care availability before accepting shifts.",
-            );
-            setSample(saved.illustrative);
-            setHasPlan(true);
-            setFurthest(4);
-            setStep(saved.plan.offers.length ? 4 : 1);
-          }}
+          onRestore={(saved) => openLibrary(saved)}
+          onReuse={(saved) => openLibrary(saved, true)}
         />
       )}
       <footer>

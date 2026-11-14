@@ -43,13 +43,13 @@ Dollar input is converted once to integer cents. Shift earnings and each full si
 
 ## Return next week
 
-Choose **Save this week** to store one validated Free plan locally. Replacing it now requires confirmation. **Load a saved week** restores it; **Remove saved week** removes only the Free slot. Nothing is saved automatically; refreshing loses an unsaved plan. There is no cloud sync. **Plan next week** advances care windows seven days, preserves household assumptions, clears shift offers and reminds you to reconfirm availability. A DST transition week is rejected.
+Choose **Save this week** to store one validated Free plan locally. An identical save confirms it is already saved; replacing different inputs requires confirmation. **Load a saved week** restores it; **Remove saved week** removes only the Free slot. Destructive navigation offers Save / Discard / Cancel when current work has no persisted copy. Nothing is saved automatically; a browser reload warning is best-effort, not draft recovery. There is no cloud sync. **Plan next week** advances care windows seven days, preserves household assumptions, clears shift offers and reminds you to reconfirm availability. A DST transition week is rejected.
 
 ## Free and Plus Demo
 
-**Free ($0)** keeps the full optimizer, feasible shift comparison, breakdown, what-if changes, one saved week and next-week reuse. **ShiftMargin Plus ($5.99/month proposed)** adds up to five named plans, a local library with open/rename/delete, and comparison of two snapshots recalculated by the same worker.
+**Free forever ($0)** keeps the full optimizer, feasible shift comparison, breakdown, what-if changes, one saved week and next-week reuse. **ShiftMargin Plus ($5.99/month proposed)** adds up to 12 named plans, a local library with open/rename/delete and direct next-week reuse, and comparison of two snapshots recalculated by the same worker. Repeated library saves do not duplicate the same inputs.
 
-Choose **Save another plan**, **Plan library**, or **Free & Plus**, then **Try Plus Demo — No payment required**. This unlocks working features and displays **Plus demo active · No payment processed**. No card, subscription, account or payment is created. Turning Demo off retains the library and relocks its features; clearing the library requires confirmation and preserves the Free slot. Plans stay in this browser. This is a functional monetization prototype; price, willingness to pay and retention are unvalidated hypotheses.
+Choose **Save another plan**, **Plan library**, or **Free & Plus**, then **Try Plus Demo — No payment required**. This unlocks working features and displays **Plus demo active · No payment processed**. No card, subscription, account or payment is created. Demo does not expire; a seven-day trial is deferred until an honest post-trial subscription path exists. Turning Demo off retains the library and relocks its features; clearing the library requires confirmation and preserves the Free slot. Plans stay in this browser. This is a functional monetization prototype; price, willingness to pay and retention are unvalidated hypotheses.
 
 ## Boundaries
 
@@ -61,6 +61,9 @@ Static output works on GitHub Pages, Vercel or Netlify. The relative asset base 
 
 ## Documentation
 
+- [V2.3 product decisions and trial NO-GO](docs/V2_3_PRODUCT_DECISIONS.md)
+- [V2.3 QA and release status](docs/V2_3_QA.md)
+- [V2.3 factual pitch handoff](docs/V2_3_PITCH_HANDOFF.md)
 - [Final jury handoff, release audit and evidence](docs/FINAL_JURY_HANDOFF.md)
 - [V2.2 audit](docs/V2_2_AUDIT.md)
 - [Free/Plus model and monetization limits](docs/MONETIZATION_V2_2.md)

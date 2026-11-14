@@ -2,7 +2,7 @@ import type { PlanInput } from "../domain/types";
 import { assertPlan } from "../domain/validation";
 export const LIBRARY_KEY = "shiftmargin.plus-library.v1";
 export const DEMO_KEY = "shiftmargin.plus-demo.v1";
-export const MAX_PLANS = 5;
+export const MAX_PLANS = 12;
 export const MAX_LIBRARY_CHARS = 500_000;
 export const MAX_PLAN_CHARS = 100_000;
 export type SavedPlan = {

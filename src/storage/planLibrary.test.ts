@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { samePlan } from "./planIdentity";
 import { demoWeek } from "../data/demoWeek";
 import { deserializeWeek, serializeWeek } from "../domain/persistence";
 import {
@@ -45,9 +46,9 @@ describe("bounded, isolated Plus storage", () => {
       "savedAt",
     ]);
   });
-  it("rejects a sixth plan, duplicate IDs and invalid inputs", () => {
+  it("rejects a thirteenth plan, duplicate IDs and invalid inputs", () => {
     const p = item();
-    expect(() => serializeLibrary(Array.from({ length: 6 }, item))).toThrow();
+    expect(() => serializeLibrary(Array.from({ length: 13 }, item))).toThrow();
     expect(() => serializeLibrary([p, p])).toThrow(/unique/);
     p.plan.withholdingPercent = -1;
     expect(() => serializeLibrary([p])).toThrow();
@@ -143,4 +144,40 @@ describe("bounded, isolated Plus storage", () => {
     expect(demoIsActive(storage)).toBe(false);
     expect(storage.getItem(LIBRARY_KEY)).toBe(text);
   });
+});
+
+it("compares content independent of key order but includes illustrative status", () => {
+  const a = makeSavedPlan(demoWeek(), true, "A");
+  const reversed = Object.fromEntries(
+    Object.entries(a.plan).reverse(),
+  ) as typeof a.plan;
+  expect(samePlan(a, { plan: reversed, illustrative: true })).toBe(true);
+  expect(samePlan(a, { plan: reversed, illustrative: false })).toBe(false);
+});
+it("keeps twelve full-size supported schedules within the library bound and preserves v1 data", () => {
+  const p = demoWeek();
+  const ranges = Array.from({ length: 28 }, () => ({
+    ...p.partnerAvailable[0],
+  }));
+  p.partnerAvailable = ranges;
+  p.existingCareCoverage = ranges;
+  p.unpaidHelperCoverage = ranges;
+  p.paidCare!.availability = ranges;
+  p.offers = Array.from({ length: 10 }, (_, i) => ({
+    ...p.offers[0],
+    id: String(i).padEnd(100, "x"),
+    title: "x".repeat(80),
+  }));
+  const records = Array.from({ length: 12 }, (_, i) =>
+    makeSavedPlan(p, true, `Plan ${i}`),
+  );
+  const start = performance.now();
+  const raw = serializeLibrary(records);
+  const decoded = parseLibrary(raw);
+  console.log(
+    `12-plan storage check: ${raw.length} characters, ${Math.round(performance.now() - start)} ms serialize+parse`,
+  );
+  expect(decoded).toEqual(records);
+  expect(raw.length).toBeLessThan(MAX_LIBRARY_CHARS);
+  expect(JSON.parse(raw).libraryVersion).toBe(1);
 });
