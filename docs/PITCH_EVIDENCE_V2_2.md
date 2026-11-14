@@ -25,12 +25,14 @@ For a repeated demo, previously saved plans may already exist. Use the libraryâ€
 
 ## Screenshots
 
+- [Free result desktop](screenshots/v2-2-free-desktop.jpg)
+
 - [Pricing desktop](screenshots/v2-2-pricing-desktop.jpg)
 - [Pricing mobile](screenshots/v2-2-pricing-mobile.jpg)
 - [Comparison desktop](screenshots/v2-2-comparison-desktop.jpg)
 - [Comparison mobile](screenshots/v2-2-comparison-mobile.jpg)
 
-Final production captures and their provenance are recorded in QA after release.
+Free and pricing captures are from the released production site. Comparison captures are from the tested local production build; production comparison was separately verified through the rendered DOM. The browser screenshot transport became unavailable during final library/comparison capture. See QA for provenance and limits.
 
 ## Claims to avoid
 
