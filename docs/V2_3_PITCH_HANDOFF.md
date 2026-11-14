@@ -14,7 +14,7 @@ The trust improvements are concrete: unchanged saves do not trigger an upgrade, 
 | One explicit saved week | Up to 12 named local plans, separate from Free |
 | Current-week what-if changes and next-week reuse | Compare two archived scenarios, restore/rename/delete, reuse any saved plan for its following week |
 
-**Access actually shipped in this candidate: Plus Demo, activated explicitly, no card, no payment, no automatic charge, no expiry.** A seven-day preview is a future proposal, not an implemented trial or subscription. The NO-GO decision avoids locking history behind a subscription that cannot be purchased. Plans stay in this browser; there is no cross-device sync or cloud backup.
+**Actual released access: Plus Demo, activated explicitly, no card, no payment, no automatic charge, no expiry.** A seven-day preview is a future proposal, not an implemented trial or subscription. The NO-GO decision avoids locking history behind a subscription that cannot be purchased. Plans stay in this browser; there is no cross-device sync or cloud backup.
 
 ## Verified numbers
 
@@ -41,7 +41,7 @@ Prepare only your own demo records; do not clear someone else's data. The librar
 
 **Fresh screenshots are unavailable:** the browser capture transport timed out. Do not present V2.2 images as V2.3 screens. New local functional evidence is recorded as DOM transcripts in [QA](V2_3_QA.md). The existing [V2.2 desktop result](screenshots/v2-2-free-desktop.jpg) and [V2.2 comparison](screenshots/v2-2-comparison-desktop.jpg) illustrate unchanged financial outputs only; they are historical captures, not proof of the new interface.
 
-For the final deck, capture these candidate/released screens in a normal browser: unchanged-save confirmation; unsaved guard; revised pricing; 12-plan library with reuse action; real comparison; missing-care rejection. Use the release status in [QA](V2_3_QA.md) to distinguish local candidate evidence from public production verification.
+For the final deck, capture these released screens in a normal browser: unchanged-save confirmation; unsaved guard; revised pricing; 12-plan library with reuse action; real comparison; missing-care rejection. [QA](V2_3_QA.md) links the successful CI/deployment and separates local checks from post-deployment browser evidence. The released application commit is `63308f68a83fc53fc7d5610a9cc9dd5353db1893` at [production](https://pandaman-8.github.io/business-cup-2/).
 
 ## Safe claims and claims to avoid
 

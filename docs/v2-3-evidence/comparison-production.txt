@@ -1,0 +1,124 @@
+- link "Skip to content":
+  - /url: "#main"
+- banner:
+  - button "ShiftMargin home":
+    - text: ShiftMargin
+    - generic: .
+  - button "Advanced Planning"
+- main:
+  - navigation "Comparison steps":
+    - list:
+      - button "1 Your shifts":
+        - generic: "1"
+        - generic: Your shifts
+      - button "2 Childcare":
+        - generic: "2"
+        - generic: Childcare
+      - button "3 Your costs":
+        - generic: "3"
+        - generic: Your costs
+      - button "4 Your result":
+        - generic: "4"
+        - generic: Your result
+  - generic: Quick Compare
+  - text: Illustrative example
+  - button "Reset"
+  - paragraph: Plus demo active · No payment processed
+  - paragraph: Fictional shifts, real calculation. Edit any input to see what changes.
+  - status: This week is already saved.
+  - region "Your recommendation":
+    - status:
+      - generic: "Sunday shift. Estimated additional money kept: $98.40."
+    - paragraph: Recommended plan
+    - heading "Sunday shift" [level=1]
+    - paragraph:
+      - text: "Your limit: up to 1 extra shift"
+      - button "Change limit"
+    - paragraph: Estimated additional money kept
+    - strong: $98.40
+    - paragraph: Compared with taking no extra shifts
+    - paragraph:
+      - strong: $75.20 more
+      - text: than Saturday shift.
+    - heading "Why this works for you" [level=2]
+    - paragraph: This plan pays less before costs, but you don’t need paid childcare.
+    - paragraph: ✓ Work and commute are covered by your entered care.
+    - generic "Where the money goes $138.00 before costs":
+      - text: Where the money goes
+      - generic: $138.00 before costs
+    - heading "Compare your options" [level=2]
+    - button "Edit shifts"
+    - paragraph: Up to 1 extra shift. Only covered plans are ranked.
+    - strong: Sunday shift
+    - generic: Recommended
+    - strong: $98.40
+    - strong: Saturday shift
+    - generic: Childcare $144.00 · travel $12.00
+    - strong: $23.20
+    - strong: No extra shifts
+    - generic: Childcare $0.00 · travel $0.00
+    - strong: $0.00
+    - complementary "Why these shifts cannot be combined":
+      - heading "Why not Saturday shift + Sunday shift?" [level=3]
+      - paragraph: "Each shift works on its own. Together: Above your limit for extra shifts."
+    - generic "Care for the recommended plan Review hours":
+      - text: Care for the recommended plan
+      - generic: Review hours
+    - generic "Assumptions behind this estimate"
+    - generic "What if my plans change?"
+  - button "Edit my week"
+  - button "Save this week"
+  - button "Save another plan"
+  - button "Plan library"
+  - button "Plan next week Copy care settings and add new shifts":
+    - text: Plan next week →
+    - generic: Copy care settings and add new shifts
+  - generic "Saved week & privacy"
+- dialog "Compare saved plans":
+  - heading "Compare saved plans" [active] [level=2]
+  - button "Close"
+  - paragraph: Plus demo active · No payment processed
+  - region "Saved plan comparison":
+    - paragraph: Recalculated from your saved inputs. These are estimates, not recorded earnings or realized savings.
+    - status:
+      - paragraph:
+        - strong: $23.20 more
+        - text: estimated money kept in “Week of Nov 16 · Jury two shifts” than “Free week · Nov 16”.
+    - article:
+      - heading "Free week · Nov 16" [level=3]
+      - paragraph: Nov 16–Nov 22 · 2026 · America/Chicago
+      - paragraph: Illustrative example
+      - paragraph: Sunday shift
+      - term: Gross pay
+      - definition: $138.00
+      - term: Estimated withholding (20%)
+      - definition: "-$27.60"
+      - term: Childcare
+      - definition: "-$0.00"
+      - term: Travel
+      - definition: "-$12.00"
+      - term: Net money kept
+      - definition: $98.40
+      - paragraph: Up to 1 extra shift. Based on this plan’s own pay, care availability and costs.
+    - article:
+      - heading "Week of Nov 16 · Jury two shifts" [level=3]
+      - paragraph: Nov 16–Nov 22 · 2026 · America/Chicago
+      - paragraph: Illustrative example
+      - paragraph: Saturday shift + Sunday shift
+      - term: Gross pay
+      - definition: $362.00
+      - term: Estimated withholding (20%)
+      - definition: "-$72.40"
+      - term: Childcare
+      - definition: "-$144.00"
+      - term: Travel
+      - definition: "-$24.00"
+      - term: Net money kept
+      - definition: $121.60
+      - paragraph: Up to 2 extra shifts. Based on this plan’s own pay, care availability and costs.
+  - button "Back to library"
+  - paragraph: Plans are stored in this browser only. No account or cloud sync. Nothing is sent to a server.
+- contentinfo:
+  - generic: ShiftMargin · Earn more. Keep more.
+  - button "Free & Plus"
+  - generic: Estimates, not guarantees. Confirm care directly.

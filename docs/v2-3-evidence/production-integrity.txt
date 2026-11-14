@@ -1,0 +1,7 @@
+Production files compared with Pages artifact from run 43607396079, application commit 63308f68a83fc53fc7d5610a9cc9dd5353db1893.
+
+assets/index-B7STCkFb.css MATCH cf3af29e4338132539108127b8dd6e312da907ea09b29e36de4f12e1a6d52a9c
+assets/index-Bncqw6bb.js MATCH f5e02e0a3161880ce4191a65bd563ab17ac8852efcc132b5207a7fa87fc7c824
+assets/optimizer.worker-B-rFU836.js MATCH 70b078756e678ede44dab1df33a5c66abd38225b4150e7dcc215562e183d8830
+favicon.svg MATCH 91402f1d7d867d228fe96d5b9d6d3113388dba38c2c3be87a2808bbb6eb588b5
+index.html MATCH 487a2b71f04b600460992da2e2c4cacf7f5a826f8023c1a98b6e31f7a4f5f157

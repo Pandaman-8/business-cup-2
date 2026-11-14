@@ -8,7 +8,7 @@ Date: November 14, 2026. Branch: `codex/shiftmargin-v2-3`. Baseline main `5b407e
 - Phase B and final clean gate: **96 tests passed in 9 files**. All 75 baseline tests retained; expectations for intentional unsaved-change confirmations and the larger capacity were updated. Added 19 trust/app journeys and two identity/capacity tests.
 - Final sequence: `npm ci`, `npm run typecheck`, `npm test`, `npm run build`, `git diff --check` — all passed. Clean install added 106 packages; final test duration 17.82 seconds in this environment.
 - No domain engine, worker, adapter, dependency manifest/lockfile or workflow change. Worker remains `optimizer.worker-B-rFU836.js` (9.19 kB).
-- Final tested assets: `index-DYkscYhB.js` (289.42 kB / 87.53 kB gzip), `index-cgxdZArw.css` (23.88 kB / 6.03 kB gzip).
+- Local tested assets: `index-DYkscYhB.js` (289.42 kB / 87.53 kB gzip), `index-cgxdZArw.css` (23.88 kB / 6.03 kB gzip). Published CI asset names and integrity evidence are below.
 
 During development, older journeys initially stopped at the newly required confirmation. Tests were updated to make that deliberate choice while preserving financial assertions. One run overlapped another suite and hit a 5-second app-test timeout; an isolated full run passed without increasing timeouts. These intermediate failures are not described as clean passes.
 
@@ -51,4 +51,26 @@ No timed trial was implemented, so trial-expiry tests are not applicable. No pay
 
 ## Release
 
-Application commit, CI, Pages deployment and post-deployment verification will be recorded after publication. Until that verification completes, V2.2 remains the last verified production release. The earlier V2.2 jury handoff is historical evidence, not a V2.3 deployment claim.
+**V2.3 is deployed and functionally verified** at [the public production URL](https://pandaman-8.github.io/business-cup-2/). Application commit: `63308f68a83fc53fc7d5610a9cc9dd5353db1893`. The branch was fast-forwarded into main after its CI passed; no force push or optimizer change was used.
+
+- [Branch CI](https://github.com/Pandaman-8/business-cup-2/actions/runs/43603190126): success.
+- [Main CI](https://github.com/Pandaman-8/business-cup-2/actions/runs/43607395960): success.
+- [Pages build and deploy](https://github.com/Pandaman-8/business-cup-2/actions/runs/43607396079): success; completed November 14, 2026 at 14:56:25 UTC (19:56:25 Astana).
+- Deployment logs confirm **96 passing tests in nine files**. Published assets are `index-Bncqw6bb.js`, `index-B7STCkFb.css` and the unchanged worker. All five public files (HTML, CSS, JavaScript, worker, favicon) match the downloaded Pages artifact byte for byte: [SHA-256 evidence](v2-3-evidence/production-integrity.txt).
+
+The first Python HTTP checks returned 503 and a request for the local JavaScript filename returned 404. These were not counted as integrity passes. Reading production HTML revealed the CI filenames; subsequent curl downloads succeeded and matched the actual deployment artifact. Comparing local and CI builds found one added unused `.fixed` CSS utility after documentation was added; JavaScript was identical after replacing only its CSS filename reference. No public missing-script failure was observed.
+
+Post-deployment browser checks used existing V2.2 records, without clearing or replacing them:
+
+| Public check | Result |
+| --- | --- |
+| 1440 px Free restore | Existing saved week loaded; Sunday $98.40 and Saturday $23.20. Repeat Save showed “This week is already saved” with no dialog. |
+| 390 px legacy library | Existing Demo and both prior records remained; 2 of 12 plans, new summaries and reuse buttons. |
+| 390 px saved comparison | Actual $98.40 / $121.60, $23.20 difference. Escape closed comparison. |
+| 390 px direct reuse | Nov 16 record became Nov 23 inputs; offers cleared and care-reconfirmation reminder displayed. |
+| 390 px guard | Reset from reused work opened Save / Discard / Cancel. Cancel retained Nov 23. Explicit Discard then opened the sample. |
+| Reload | Demo and both original records persisted; no library migration or deletion. Error-level browser log was empty. |
+
+Public transcripts: [Free](v2-3-evidence/free-production.txt), [legacy library](v2-3-evidence/legacy-library-production.txt), [comparison](v2-3-evidence/comparison-production.txt), [reuse](v2-3-evidence/reuse-production.txt), [guard](v2-3-evidence/guard-production.txt), [reload](v2-3-evidence/reloaded-production.txt). These are DOM evidence, not screenshots. The viewport override was reset after testing.
+
+GitHub emitted non-blocking action-runtime/runner migration notices; workflows were deliberately left unchanged. The automatic permission reviewer timed out once during main integration; its permitted retry succeeded. No unresolved approval block remains. The earlier V2.2 jury handoff remains historical evidence. The release is suitable for the demonstrated functional jury flow, with the visual, keyboard and device verification limits above still open.
